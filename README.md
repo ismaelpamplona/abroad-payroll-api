@@ -1,2 +1,2 @@
-# abroad-payroll
-Payroll management software designed exclusively for Brazilian public agents on international missions.
+# abroad-payroll-api
+Payroll management rest api software, built in Rust, designed exclusively for Brazilian public agents on international missions.
