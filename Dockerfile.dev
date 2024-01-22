@@ -1,0 +1,15 @@
+# Use the official Rust image as a parent image
+FROM rust:latest
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Copy the current directory contents into the container at /usr/src/myapp
+COPY . .
+
+# Install cargo-watch for hot reloading
+RUN cargo install cargo-watch
+
+# Command to run the application using cargo-watch for hot reloading
+# CMD ["cargo", "watch", "-w", "src", "-x", "run"]
+CMD ["cargo", "watch", "-x", "run"]

@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: postgres
+    volumes:
+      - ./migrations:/docker-entrypoint-initdb.d
+      - rust-api:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3030:3030"
+    depends_on:
+      - postgres
+    environment:
+      - APP_PORT=3030
+      - DATABASE_URL=postgres://postgres:123456@postgres:5432/postgres
+      - JWT_SECRET=kVZYonaIfGPbu7HqdG4DDq2UBiUhTSvjKLttNN5N
+    volumes:
+      - ./:/app
+
+volumes:
+  rust-api:
