@@ -1,4 +1,4 @@
 CREATE TABLE people (
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY
 );
 

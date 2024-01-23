@@ -8,8 +8,8 @@ services:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: postgres
     volumes:
-      - ./migrations:/docker-entrypoint-initdb.d
-      - rust-api:/var/lib/postgresql/data
+      - ./migrations/up:/docker-entrypoint-initdb.d
+      - abroad-payroll-api:/var/lib/postgresql/data
 
   api:
     build:
@@ -21,10 +21,10 @@ services:
       - postgres
     environment:
       - APP_PORT=3030
-      - DATABASE_URL=postgres://postgres:123456@postgres:5432/postgres
-      - JWT_SECRET=kVZYonaIfGPbu7HqdG4DDq2UBiUhTSvjKLttNN5N
+      - DB_URL=postgres://postgres:123456@postgres:5432/postgres
+      - JWT_SECRET=123456
     volumes:
       - ./:/app
 
 volumes:
-  rust-api:
+  abroad-payroll-api:

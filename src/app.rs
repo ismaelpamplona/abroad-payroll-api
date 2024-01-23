@@ -8,9 +8,9 @@ use std::{env, net::SocketAddr};
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     println!("running");
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let db_url = env::var("DB_URL").expect("DB_URL must be set");
 
-    let pool = PgPool::connect(&database_url)
+    let pool = PgPool::connect(&db_url)
         .await
         .expect("Failed to connect to the database");
 
@@ -25,10 +25,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     println!("Listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
-
+    let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
+    axum::serve(listener, app).await.unwrap();
     Ok(())
 }
