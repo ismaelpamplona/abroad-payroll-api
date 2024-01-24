@@ -27,8 +27,6 @@
 - [ ] Personal data (`people`)
 
   - Nome
-  - Country (uuid)
-  - City (uuid)
   - Role (uuid)
   - Class (uuid)
   - CPF
@@ -39,6 +37,20 @@
   - ATS
   - Dependentes
   - Dependentes IR
+
+- [ ] person_cities (`person_cities`)
+
+  - Person (uuid)
+  - City (uuid)
+  - Data de embarque
+  - Data de partida
+
+- [ ] people_time_served_abroad (`people_missions_abroad`)
+
+  - Person (uuid)
+  - City (uuid)
+  - Data de embarque
+  - Data de partida
 
 - [ ] Cargos (`roles_indexes`)
 
@@ -63,18 +75,23 @@
   - law_number
   - law_date
 
-- [ ] Tabela imposto de renda
-
-- [ ] Teto constitucional (Art. 37, XL, CF)
-
 - [ ] Taxa de cambio teto constitucional (art. 37, XI, CF | Portaria 693 22/12/2015)
 
   - law
-  - value
   - law_date
+  - value
+
+- [ ] Teto constitucional (Art. 37, XL, CF)
+
+- [ ] Tabela imposto de renda
 
 - [ ] Payroll data
+
   - Abono (bool)
   - Antecipação de gratificação natalina (bool)
   - Férias (bool)
   - Cotação
+
+- [ ] Pensão alimentícia
+
+- [ ] Consignações

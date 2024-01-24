@@ -8,6 +8,8 @@ CREATE TABLE people (
     bank UUID NOT NULL,
     bank_agency VARCHAR(20) NOT NULL,
     bank_agency_account VARCHAR(20) NOT NULL,
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL,
     ats NUMERIC(5, 2) NOT NULL,
     dependents NUMERIC(5, 2) NOT NULL,
     dependents_ir NUMERIC(5, 2) NOT NULL,
