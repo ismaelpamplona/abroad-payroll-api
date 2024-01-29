@@ -8,6 +8,13 @@
 
   - Name
 
+  - [ ] Cargos (`roles_indexes`)
+
+  - Cargo (role) (uuid)
+  - Classe (class) (uuid)
+  - Fator de conversão da retribuição básica (5809)
+  - Fator de conversão da IREX (71733)
+
 - [ ] Bancos (`banks`)
 
   - Nome
@@ -19,6 +26,7 @@
 
 - [ ] Postos (cidades) (`cities`)
 
+  - Nome
   - País (uuid)
   - Localização (lat long)
   - Fator de conversão da retribuição básica (5809)
@@ -34,30 +42,30 @@
     - Banco (uuid)
     - Agência
     - Conta
-  - ATS
-  - Dependentes
-  - Dependentes IR
 
-- [ ] person_cities (`person_cities`)
+- Tipos de dependentes
 
-  - Person (uuid)
-  - City (uuid)
-  - Data de embarque
-  - Data de partida
+  - Nome
+  - Percent (uuid)
+
+- [ ] Dependentes
+
+  - Nome
+  - Person (uuid people)
+  - Data de ida
+  - Data de volta
+  - Tipo
+  - Dependentes IR (bool)
 
 - [ ] people_time_served_abroad (`people_missions_abroad`)
 
   - Person (uuid)
   - City (uuid)
   - Data de embarque
-  - Data de partida
-
-- [ ] Cargos (`roles_indexes`)
-
-  - Cargo (role) (uuid)
-  - Classe (class) (uuid)
-  - Fator de conversão da retribuição básica (5809)
-  - Fator de conversão da IREX (71733)
+  - Data de apresentação
+  - Data de fim da missão (3 anos após data de apresentação)
+  - law_number
+  - law_date
 
 - [ ] Fator de conversão da residência funcional por cargos (GAP - Portaria MRE 494 22/07/22)
 
