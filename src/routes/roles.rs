@@ -1,14 +1,10 @@
 use crate::handlers::roles;
-use axum::middleware::from_fn;
-
 use axum::{
     routing::{get, post},
     Extension, Router,
 };
-use sqlx::{Pool, Postgres};
+use sqlx::PgPool;
 
-pub fn routes(pool: Pool<Postgres>) -> Router {
-    Router::new()
-        .route("/", get(roles::list))
-        .layer(Extension(pool))
+pub fn routes() -> Router {
+    Router::new().route("/", get(roles::list))
 }

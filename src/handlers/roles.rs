@@ -1,4 +1,3 @@
-use crate::utils;
 use axum::{
     extract::{Extension, Query},
     http::StatusCode,
