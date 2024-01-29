@@ -4,10 +4,11 @@ Legislação aplicada para cálculo da retribuição e direitos do pessoal civil
 
 - [Lei 5.809, de 10 de outubro de 1972](https://www.planalto.gov.br/ccivil_03/leis/L5809.htm).
 - [Decreto 71.733, de 18 de janeiro de 1973](https://www.planalto.gov.br/ccivil_03/decreto/D71733compilado.htm).
+- [Lei nº 8.112, de 11 de dezembro de 1990](https://www.planalto.gov.br/ccivil_03/LEIS/L8112cons.htm)
 - [Decreto 9.435, de 2 de julho de 2018]().
 - [Portaria MRE 402, de 22 de julho de 2022 - Guia de Administração dos Postos (GAP 2022)](https://www.gov.br/mre/pt-br/arquivos/documentos/administrativo/GAP2022AjustadosPortarias423e425de2022.pdf).
-- [Portaria MRE 424, de 9 de dezembro de 2022](https://www.in.gov.br/web/dou/-/portaria-n-424-de-9-de-dezembro-de-2022-449711629).
 - [Portaria MRE 494, de 20 de novembro de 2023](https://www.in.gov.br/web/dou/-/portaria-mre-n-494-de-20-de-novembro-de-2023-524552719).
+- [Portaria MRE 497, de 13 de dezembro de 2023]().
 - [Despacho 116/2013/SFT/CGU/AGU]()
 - [Parecer 147/2011/DECOR/CGU/AGU]()
 
@@ -30,11 +31,29 @@ Todos os valores calculados **em dólares americanos**, conforme parágrafo úni
 
 $$Rb = 94 \cdot 76,70 = 7.209,80$$
 
-## 2. Gratificação no Exterior por Tempo de Serviço (Gts):
+## 2. Gratificação no Exterior por Tempo de Serviço (Gets):
 
+- Subseção III "Do Adicional por Tempo de Serviço", artigo 67 (revogado) da [lei 8.112/90](https://www.planalto.gov.br/ccivil_03/LEIS/L8112cons.htm)
 - Artigo 15 da [lei 5.809/72](https://www.planalto.gov.br/ccivil_03/leis/L5809.htm).
+- Subseção III "Do Adicional por Tempo de Serviço", artigo 67 da [lei 8.112/90](https://www.planalto.gov.br/ccivil_03/leis/l8112cons.htm)
+- [Nota Técnica 15/2017/DECOR/CGU/AGU]()
 
-https://sigrh.ufrn.br/sigrh/public/documentos/manual_servidor/adicional_anuenio.htm#:~:text=O%20adicional%20por%20tempo%20de,com%20o%20vencimento%20do%20m%C3%AAs.
+- Forma de cálculo:
+
+  - Percentual relativo ao tempo de serviço: $Pts$
+
+  $$Gets = Pts \cdot Rb$$
+
+- **Exemplo** (referência 24/01/2024):
+
+  - Ministro de primeira classe: $EvRb = 94$
+  - Missão em Washington nos EUA: $EvRb = 76,70$
+  - 1 ano e 11 meses na missão atual (em andamento)
+  - 2 anos e 3 meses em missão em Pretória (finalizada)
+  - 4 anos e 2 meses de tempo de serviço total no exterior
+  - $Rb = 94 \cdot 76,70 = 7.209,80$
+
+  $$Gets = 4\% \cdot 7.209,80 = 288,392$$
 
 ## 3. Indenizações:
 
@@ -116,5 +135,9 @@ $$Ac = (2 \cdot 7.209,80) + (2 \cdot 920,40) + 6.136,00 = 22.395,20$$
   - $TetoRf = 150,00 \cdot 68,00 = 10.200,00$
   - Se o valor do aluguel superior ao teto, por exemplo $11.100,00$: $Rf = 10.200,00$
   - Se o valor do aluguel inferior ao teto, por exemplo $7.700,00$: $Rf = 7.700,00$
+
+  # Fechamento
+
+  - Cotação do dólar a ser considerada é a do último dia útil da primeira quinzena do mês anterior ao da folha.
 
   # Consiganações e Deduções
