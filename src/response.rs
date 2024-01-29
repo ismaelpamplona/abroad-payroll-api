@@ -24,18 +24,24 @@ pub struct ErrorDetail {
 pub struct Pagination {
     pub page: Option<usize>,
     pub page_size: Option<usize>,
+    pub limit: Option<usize>,
 }
 
 impl Pagination {
-    pub fn offset(&self) -> usize {
-        self.page.unwrap_or(1).saturating_sub(1) * self.page_size()
+    pub fn offset(&self, total_count: usize) -> usize {
+        self.page.unwrap_or(1).saturating_sub(1) * self.page_size(total_count)
     }
 
-    pub fn page_size(&self) -> usize {
-        self.page_size.unwrap_or(10).min(100)
+    pub fn page_size(&self, total_count: usize) -> usize {
+        let limit = self.limit.unwrap_or(10).min(100);
+        if total_count < limit {
+            return total_count;
+        }
+        self.page_size.unwrap_or(limit).min(100)
     }
 }
 
+#[derive(Debug)]
 pub struct Filter<'a> {
     pub name: &'a str,
     pub val: Option<&'a String>,
@@ -69,15 +75,22 @@ impl<T> ApiResponse<T> {
 }
 
 pub fn generate_filter_clauses(filters: Vec<Filter>) -> String {
-    filters.into_iter().fold(String::new(), |mut acc, filter| {
-        if let Some(value) = filter.val {
-            value.split(',').for_each(|val| {
-                if !acc.is_empty() {
-                    acc.push_str(&format!(" {} ", filter.conj));
-                }
-                acc.push_str(&format!("{} ILIKE '%{}%'", filter.name, val));
-            });
-        }
-        acc
-    })
+    let conditions: Vec<String> = filters
+        .into_iter()
+        .filter_map(|filter| {
+            filter.val.as_ref().map(|value| {
+                value
+                    .split(',')
+                    .map(|val| format!("{} ILIKE '%{}%'", filter.name, val))
+                    .collect::<Vec<String>>()
+                    .join(&format!(" {} ", filter.conj))
+            })
+        })
+        .collect();
+
+    if conditions.is_empty() {
+        String::new()
+    } else {
+        format!("WHERE {}", conditions.join(" AND "))
+    }
 }

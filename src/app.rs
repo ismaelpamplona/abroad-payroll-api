@@ -1,7 +1,6 @@
 use crate::handlers;
-
-use crate::routes::roles;
-use axum::{routing::get, Router};
+use crate::routes::{banks, cities, classes, countries, roles, roles_classes_indexes};
+use axum::{routing::get, Extension, Router};
 use sqlx::PgPool;
 use std::{env, net::SocketAddr};
 
@@ -15,8 +14,14 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .expect("Failed to connect to the database");
 
     let app = Router::new()
-        .route("/", get(handlers::get_root))
-        .nest("/roles", roles::routes(pool));
+        .route("/", get(handlers::get_root)) // Root route
+        .nest("/classes", classes::routes())
+        .nest("/roles", roles::routes())
+        .nest("/roles-classes-indexes", roles_classes_indexes::routes())
+        .nest("/banks", banks::routes())
+        .nest("/countries", countries::routes())
+        .nest("/cities", cities::routes())
+        .layer(Extension(pool));
 
     let port: u16 = env::var("APP_PORT")
         .expect("PORT must be set")
