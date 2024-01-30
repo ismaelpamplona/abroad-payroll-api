@@ -1,4 +1,7 @@
+use axum::http::StatusCode;
 use serde::{Deserialize, Serialize};
+use sqlx::error::Error;
+use std::convert::TryInto;
 
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
@@ -93,4 +96,38 @@ pub fn generate_filter_clauses(filters: Vec<Filter>) -> String {
     } else {
         format!("WHERE {}", conditions.join(" AND "))
     }
+}
+
+pub fn get_pg_error_code(error: &Error) -> Option<String> {
+    match error {
+        sqlx::error::Error::Database(database_error) => {
+            if let Some(code) = database_error.code() {
+                return Some(code.to_string());
+            }
+        }
+        _ => {}
+    }
+    None
+}
+
+pub fn handle_error(error: &Error) -> ErrorDetail {
+    let (status_code, message) = match get_pg_error_code(&error) {
+        Some(code) => match code.as_str() {
+            "23505" => (StatusCode::CONFLICT, "This data already exists"),
+            _ => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
+        },
+        None => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
+    };
+
+    ErrorDetail {
+        code: status_code.as_u16(),
+        message: message.to_string(),
+    }
+}
+
+pub fn get_error_status(error: &Error) -> StatusCode {
+    handle_error(error)
+        .code
+        .try_into()
+        .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR)
 }
