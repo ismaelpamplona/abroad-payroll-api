@@ -1,15 +1,5 @@
-use axum::{
-    extract::{Extension, Path},
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
-use sqlx::PgPool;
-use uuid::Uuid;
-
-use crate::response::{ApiResponse, ErrorDetail, Meta};
-
 use super::*;
+use axum::extract::Path;
 
 pub async fn get_by_id(
     Extension(pool): Extension<PgPool>,
@@ -30,7 +20,7 @@ pub async fn get_by_id(
         JOIN 
             countries ON cities.country = countries.id
         WHERE 
-            cities.id = $1" // Use $1 as a parameter placeholder
+            cities.id = $1"
     );
 
     let result = sqlx::query_as::<_, CityResponse>(&query)
@@ -50,12 +40,10 @@ pub async fn get_by_id(
         }
         Err(error) => {
             eprintln!("Failed to fetch cities: {}", error);
-            let error = ErrorDetail {
-                code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-                message: "Internal server error".to_string(),
-            };
-            let response: ApiResponse<String> = ApiResponse::error(error);
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            let err = handle_error(&error);
+
+            let res: ApiResponse<String> = ApiResponse::error(err);
+            (get_error_status(&error), Json(res)).into_response()
         }
     }
 }
