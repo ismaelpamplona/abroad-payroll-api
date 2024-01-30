@@ -16,7 +16,7 @@ use crate::response::{
 pub async fn list(
     Extension(pool): Extension<PgPool>,
     Query(pagination): Query<Pagination>,
-    Query(filters): Query<ClassFilter>,
+    Query(filters): Query<CountryFilter>,
 ) -> impl IntoResponse {
     let filters = vec![Filter {
         name: "name",
@@ -26,7 +26,7 @@ pub async fn list(
 
     let mut where_clause = generate_filter_clauses(filters);
 
-    let count_query = format!("SELECT COUNT(*) FROM classes {}", where_clause);
+    let count_query = format!("SELECT COUNT(*) FROM countries {}", where_clause);
     let total_count: i64 = sqlx::query_scalar(&count_query)
         .fetch_one(&pool)
         .await
@@ -34,11 +34,11 @@ pub async fn list(
     let offset = pagination.offset(total_count as usize);
     let page_size = pagination.page_size(total_count as usize);
     let query = format!(
-        "SELECT * FROM classes {} ORDER BY name LIMIT {} OFFSET {}",
+        "SELECT * FROM countries {} ORDER BY name LIMIT {} OFFSET {}",
         where_clause, page_size, offset
     );
 
-    let result = sqlx::query_as::<_, ClassResponse>(&query)
+    let result = sqlx::query_as::<_, CountryResponse>(&query)
         .bind(page_size as i64)
         .bind(offset as i64)
         .fetch_all(&pool)
@@ -55,7 +55,7 @@ pub async fn list(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to fetch classes: {}", error);
+            eprintln!("Failed to fetch countries: {}", error);
             let error = ErrorDetail {
                 code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
                 message: "Internal server error".to_string(),
