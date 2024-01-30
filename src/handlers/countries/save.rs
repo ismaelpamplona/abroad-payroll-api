@@ -1,11 +1,5 @@
-use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
-use sqlx::PgPool;
-
-use crate::response::{ApiResponse, ErrorDetail, Meta};
-
-use serde::de::DeserializeOwned;
-
 use super::*;
+use serde::de::DeserializeOwned;
 
 pub async fn save(
     Extension(pool): Extension<PgPool>,
@@ -34,12 +28,11 @@ where
         }
         Err(error) => {
             eprintln!("Failed to save country details: {}", error);
-            let error = ErrorDetail {
-                code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-                message: "Internal server error".to_string(),
-            };
-            let response: ApiResponse<String> = ApiResponse::error(error);
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+
+            let err = handle_error(&error);
+
+            let res: ApiResponse<String> = ApiResponse::error(err);
+            (get_error_status(&error), Json(res)).into_response()
         }
     }
 }
