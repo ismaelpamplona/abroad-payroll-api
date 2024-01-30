@@ -24,7 +24,7 @@ pub async fn list(
         conj: "OR",
     }];
 
-    let mut where_clause = generate_filter_clauses(filters);
+    let where_clause = generate_filter_clauses(filters);
 
     let count_query = format!("SELECT COUNT(*) FROM countries {}", where_clause);
     let total_count: i64 = sqlx::query_scalar(&count_query)
