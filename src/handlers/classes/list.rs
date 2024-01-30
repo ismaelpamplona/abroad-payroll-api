@@ -4,28 +4,19 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
-use uuid::Uuid;
+
+use sqlx::PgPool;
+
+use super::*;
 
 use crate::response::{
     generate_filter_clauses, ApiResponse, ErrorDetail, Filter, Meta, Pagination,
 };
 
-#[derive(Serialize, FromRow)]
-pub struct CountryResponse {
-    id: Uuid,
-    name: String,
-}
-
-#[derive(Deserialize)]
-pub struct RoleFilter {
-    names: Option<String>,
-}
 pub async fn list(
     Extension(pool): Extension<PgPool>,
     Query(pagination): Query<Pagination>,
-    Query(filters): Query<RoleFilter>,
+    Query(filters): Query<CityFilter>,
 ) -> impl IntoResponse {
     let filters = vec![Filter {
         name: "name",

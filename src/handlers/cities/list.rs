@@ -4,44 +4,29 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
-use uuid::Uuid;
+
+use sqlx::PgPool;
+
+use super::*;
 
 use crate::response::{
     generate_filter_clauses, ApiResponse, ErrorDetail, Filter, Meta, Pagination,
 };
 
-#[derive(Serialize, FromRow)]
-pub struct RoleClassIndexResponse {
-    rci_id: Uuid,
-    role_id: Uuid,
-    role_name: String,
-    class_id: Uuid,
-    class_name: String,
-    fc_rb: f64,
-    fc_irex: f64,
-}
-
-#[derive(Deserialize)]
-pub struct RoleFilter {
-    role_names: Option<String>,
-    class_names: Option<String>,
-}
 pub async fn list(
     Extension(pool): Extension<PgPool>,
     Query(pagination): Query<Pagination>,
-    Query(filters): Query<RoleFilter>,
+    Query(filters): Query<CityFilter>,
 ) -> impl IntoResponse {
     let filters = vec![
         Filter {
-            name: "r.name",
-            val: filters.role_names.as_ref(),
+            name: "name",
+            val: filters.names.as_ref(),
             conj: "OR",
         },
         Filter {
             name: "c.name",
-            val: filters.class_names.as_ref(),
+            val: filters.countries.as_ref(),
             conj: "OR",
         },
     ];
@@ -49,9 +34,8 @@ pub async fn list(
 
     let count_query = format!(
         "SELECT COUNT(*) 
-         FROM roles_classes_indexes rci
-         JOIN roles r ON rci.role = r.id
-         JOIN classes c ON rci.class = c.id
+         FROM cities
+         JOIN countries ON cities.country = countries.id
          {}",
         where_clause
     );
@@ -65,26 +49,25 @@ pub async fn list(
 
     let query = format!(
         "SELECT 
-            rci.id as rci_id,
-            r.id as role_id,
-            r.name as role_name,
-            c.id as class_id,
-            c.name as class_name,
-            rci.fc_rb,
-            rci.fc_irex
+            cities.id as id,
+            cities.name as name,
+            countries.id as country_id,
+            countries.name as country,
+            cities.latitude,
+            cities.longitude,
+            cities.fc_rb,
+            cities.fc_irex
         FROM 
-            roles_classes_indexes rci
+            cities
         JOIN 
-            roles r ON rci.role = r.id
-        JOIN 
-            classes c ON rci.class = c.id
+            countries ON cities.country = countries.id
         {} 
-        ORDER BY r.name 
+        ORDER BY cities.name 
         LIMIT {} OFFSET {}",
         where_clause, page_size, offset
     );
 
-    let result = sqlx::query_as::<_, RoleClassIndexResponse>(&query)
+    let result = sqlx::query_as::<_, CityResponse>(&query)
         .bind(page_size as i64)
         .bind(offset as i64)
         .fetch_all(&pool)
@@ -101,7 +84,7 @@ pub async fn list(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to fetch [roles_classes_indexes]: {}", error);
+            eprintln!("Failed to fetch cities: {}", error);
             let error = ErrorDetail {
                 code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
                 message: "Internal server error".to_string(),
