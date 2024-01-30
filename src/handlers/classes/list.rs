@@ -16,7 +16,7 @@ use crate::response::{
 pub async fn list(
     Extension(pool): Extension<PgPool>,
     Query(pagination): Query<Pagination>,
-    Query(filters): Query<CityFilter>,
+    Query(filters): Query<ClassFilter>,
 ) -> impl IntoResponse {
     let filters = vec![Filter {
         name: "name",
@@ -38,7 +38,7 @@ pub async fn list(
         where_clause, page_size, offset
     );
 
-    let result = sqlx::query_as::<_, CountryResponse>(&query)
+    let result = sqlx::query_as::<_, ClassResponse>(&query)
         .bind(page_size as i64)
         .bind(offset as i64)
         .fetch_all(&pool)
