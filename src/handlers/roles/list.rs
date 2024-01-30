@@ -1,18 +1,6 @@
-use axum::{
-    extract::{Extension, Query},
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
-use uuid::Uuid;
-
 use super::*;
-
-use crate::response::{
-    generate_filter_clauses, ApiResponse, ErrorDetail, Filter, Meta, Pagination,
-};
+use crate::response::{generate_filter_clauses, Filter, Pagination};
+use axum::extract::Query;
 
 pub async fn list(
     Extension(pool): Extension<PgPool>,
@@ -25,7 +13,7 @@ pub async fn list(
         conj: "OR",
     }];
 
-    let mut where_clause = generate_filter_clauses(filters);
+    let where_clause = generate_filter_clauses(filters);
 
     let count_query = format!("SELECT COUNT(*) FROM roles {}", where_clause);
     let total_count: i64 = sqlx::query_scalar(&count_query)
@@ -57,12 +45,10 @@ pub async fn list(
         }
         Err(error) => {
             eprintln!("Failed to fetch roles: {}", error);
-            let error = ErrorDetail {
-                code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-                message: "Internal server error".to_string(),
-            };
-            let response: ApiResponse<String> = ApiResponse::error(error);
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            let err = handle_error(&error);
+
+            let res: ApiResponse<String> = ApiResponse::error(err);
+            (get_error_status(&error), Json(res)).into_response()
         }
     }
 }
