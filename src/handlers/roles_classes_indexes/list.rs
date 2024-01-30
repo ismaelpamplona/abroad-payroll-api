@@ -4,9 +4,8 @@ use axum::{
     response::IntoResponse,
     Json,
 };
-use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
-use uuid::Uuid;
+
+use sqlx::PgPool;
 
 use super::*;
 
@@ -51,7 +50,7 @@ pub async fn list(
 
     let query = format!(
         "SELECT 
-            rci.id as rci_id,
+            rci.id as id,
             r.id as role_id,
             r.name as role_name,
             c.id as class_id,

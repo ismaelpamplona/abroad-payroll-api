@@ -2,13 +2,15 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use uuid::Uuid;
 
+pub mod get_by_id;
 pub mod list;
 
+pub use get_by_id::get_by_id;
 pub use list::list;
 
 #[derive(Serialize, FromRow)]
 pub struct RoleClassIndexResponse {
-    rci_id: Uuid,
+    id: Uuid,
     role_id: Uuid,
     role_name: String,
     class_id: Uuid,
