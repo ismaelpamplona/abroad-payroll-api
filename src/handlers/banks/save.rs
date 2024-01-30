@@ -1,13 +1,7 @@
-use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
-use sqlx::PgPool;
-
-use crate::response::{ApiResponse, ErrorDetail, Meta};
-
+use super::*;
 use serde::de::DeserializeOwned;
 
-use super::*;
-
-pub async fn handle_post_request(
+pub async fn save(
     Extension(pool): Extension<PgPool>,
     Json(payload): Json<BankPayload>,
 ) -> impl IntoResponse
@@ -35,12 +29,10 @@ where
         }
         Err(error) => {
             eprintln!("Failed to save bank details: {}", error);
-            let error = ErrorDetail {
-                code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-                message: "Internal server error".to_string(),
-            };
-            let response: ApiResponse<String> = ApiResponse::error(error);
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            let err = handle_error(&error);
+
+            let res: ApiResponse<String> = ApiResponse::error(err);
+            (get_error_status(&error), Json(res)).into_response()
         }
     }
 }
