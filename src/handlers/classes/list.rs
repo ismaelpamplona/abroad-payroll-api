@@ -1,17 +1,6 @@
-use axum::{
-    extract::{Extension, Query},
-    http::StatusCode,
-    response::IntoResponse,
-    Json,
-};
-
-use sqlx::PgPool;
-
 use super::*;
-
-use crate::response::{
-    generate_filter_clauses, ApiResponse, ErrorDetail, Filter, Meta, Pagination,
-};
+use crate::response::{generate_filter_clauses, Filter, Pagination};
+use axum::extract::Query;
 
 pub async fn list(
     Extension(pool): Extension<PgPool>,
@@ -24,9 +13,9 @@ pub async fn list(
         conj: "OR",
     }];
 
-    let mut where_clause = generate_filter_clauses(filters);
+    let where_clause = generate_filter_clauses(filters);
 
-    let count_query = format!("SELECT COUNT(*) FROM countries {}", where_clause);
+    let count_query = format!("SELECT COUNT(*) FROM classes {}", where_clause);
     let total_count: i64 = sqlx::query_scalar(&count_query)
         .fetch_one(&pool)
         .await
@@ -34,7 +23,7 @@ pub async fn list(
     let offset = pagination.offset(total_count as usize);
     let page_size = pagination.page_size(total_count as usize);
     let query = format!(
-        "SELECT * FROM countries {} ORDER BY name LIMIT {} OFFSET {}",
+        "SELECT * FROM classes {} ORDER BY name LIMIT {} OFFSET {}",
         where_clause, page_size, offset
     );
 
@@ -55,13 +44,11 @@ pub async fn list(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to fetch countries: {}", error);
-            let error = ErrorDetail {
-                code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-                message: "Internal server error".to_string(),
-            };
-            let response: ApiResponse<String> = ApiResponse::error(error);
-            (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            eprintln!("Failed to fetch classes: {}", error);
+            let err = handle_error(&error);
+
+            let res: ApiResponse<String> = ApiResponse::error(err);
+            (get_error_status(&error), Json(res)).into_response()
         }
     }
 }
