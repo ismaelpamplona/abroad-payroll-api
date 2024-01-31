@@ -1,11 +1,48 @@
-CREATE TABLE dependents (
-    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-    name VARCHAR(300) NOT NULL,
-    person UUID NOT NULL,
-    start_date TIMESTAMP,
-    end_date TIMESTAMP,
-    type UUID NOT NULL,
-    ir  BOOLEAN NOT NULL,
-    FOREIGN KEY (person) REFERENCES people(id) ON DELETE CASCADE,
-    FOREIGN KEY (type) REFERENCES dependents_types(id) ON DELETE CASCADE
+-- public.dependents definition
+
+-- Drop table
+
+-- DROP TABLE public.dependents;
+
+CREATE TABLE public.dependents (
+	id uuid NOT NULL DEFAULT uuid_generate_v4(),
+	"name" varchar(300) NOT NULL,
+	person uuid NOT NULL,
+	start_date timestamp NULL,
+	end_date timestamp NULL,
+	"type" uuid NOT NULL,
+	ir bool NOT NULL,
+	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at timestamp NULL,
+	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	CONSTRAINT dependents_pkey PRIMARY KEY (id)
 );
+
+-- Table Triggers
+
+create trigger dependents_updated_at before
+update
+    on
+    public.dependents for each row
+    when ((old.* is distinct
+from
+    new.*)) execute function update_updated_at();
+create trigger dependents_update_etag before
+insert
+    or
+update
+    on
+    public.dependents for each row execute function update_etag();
+
+-- Permissions
+
+ALTER TABLE public.dependents OWNER TO postgres;
+GRANT ALL ON TABLE public.dependents TO postgres;
+
+
+-- public.dependents foreign keys
+
+ALTER TABLE public.dependents ADD CONSTRAINT dependents_person_fkey FOREIGN KEY (person) REFERENCES public.people(id) ON DELETE CASCADE;
+ALTER TABLE public.dependents ADD CONSTRAINT dependents_type_fkey FOREIGN KEY ("type") REFERENCES public.dependents_types(id) ON DELETE CASCADE;
+
+
