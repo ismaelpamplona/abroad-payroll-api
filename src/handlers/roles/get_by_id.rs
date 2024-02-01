@@ -7,16 +7,11 @@ pub async fn get_by_id(
 ) -> impl IntoResponse {
     let query = sqlx::query_as::<_, RoleResponse>("SELECT * FROM roles WHERE id = $1").bind(&id);
 
-    let result = query.fetch_all(&pool).await;
+    let result = query.fetch_one(&pool).await;
 
     match result {
-        Ok(items) => {
-            let meta = Meta {
-                total_count: Some(1),
-                page: Some(1),
-                page_size: Some(1),
-            };
-            let response = ApiResponse::success_list(items, meta);
+        Ok(item) => {
+            let response = ApiResponse::success_one(item);
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
