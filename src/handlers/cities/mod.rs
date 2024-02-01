@@ -7,10 +7,12 @@ use uuid::Uuid;
 
 use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
 
+pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
 
+pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
@@ -30,7 +32,7 @@ pub struct CityResponse {
     id: Uuid,
     name: String,
     country_id: Uuid,
-    country: String,
+    country_name: String,
     latitude: f64,
     longitude: f64,
     fc_rb: f64,

@@ -7,35 +7,30 @@ pub async fn get_by_id(
 ) -> impl IntoResponse {
     let query = format!(
         "SELECT 
-            cities.id as id,
-            cities.name as name,
-            countries.id as country_id,
-            countries.name as country,
-            cities.latitude,
-            cities.longitude,
-            cities.fc_rb,
-            cities.fc_irex
+            c.id as id,
+            c.name as name,
+            c.country_id,
+            countries.name as country_name,
+            c.latitude,
+            c.longitude,
+            c.fc_rb,
+            c.fc_irex
         FROM 
-            cities
+            cities c
         JOIN 
-            countries ON cities.country = countries.id
+            countries ON c.country_id = countries.id
         WHERE 
-            cities.id = $1"
+            c.id = $1"
     );
 
     let result = sqlx::query_as::<_, CityResponse>(&query)
         .bind(&id)
-        .fetch_all(&pool)
+        .fetch_one(&pool)
         .await;
 
     match result {
-        Ok(items) => {
-            let meta = Meta {
-                total_count: Some(1),
-                page: Some(1),
-                page_size: Some(1),
-            };
-            let response = ApiResponse::success_list(items, meta);
+        Ok(item) => {
+            let response = ApiResponse::success_one(item);
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {

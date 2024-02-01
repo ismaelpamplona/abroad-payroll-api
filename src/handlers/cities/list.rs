@@ -14,7 +14,7 @@ pub async fn list(
             conj: "OR",
         },
         Filter {
-            name: "c.name",
+            name: "country",
             val: filters.countries.as_ref(),
             conj: "OR",
         },
@@ -24,7 +24,7 @@ pub async fn list(
     let count_query = format!(
         "SELECT COUNT(*) 
          FROM cities
-         JOIN countries ON cities.country = countries.id
+         JOIN countries ON cities.country_id = countries.id
          {}",
         where_clause
     );
@@ -38,21 +38,16 @@ pub async fn list(
 
     let query = format!(
         "SELECT 
-            cities.id as id,
-            cities.name as name,
-            countries.id as country_id,
-            countries.name as country,
-            cities.latitude,
-            cities.longitude,
-            cities.fc_rb,
-            cities.fc_irex
-        FROM 
-            cities
-        JOIN 
-            countries ON cities.country = countries.id
-        {} 
-        ORDER BY cities.name 
-        LIMIT {} OFFSET {}",
+            c.id as id,
+            c.name as name,
+            c.country_id,
+            countries.name as country_name,
+            c.latitude,
+            c.longitude,
+            c.fc_rb,
+            c.fc_irex
+        FROM cities c
+        JOIN countries ON c.country_id = countries.id {} ORDER BY c.name LIMIT {} OFFSET {}",
         where_clause, page_size, offset
     );
 

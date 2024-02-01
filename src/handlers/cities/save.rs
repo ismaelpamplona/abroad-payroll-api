@@ -9,10 +9,10 @@ where
     CityPayload: DeserializeOwned + Send,
 {
     let query = format!(
-        "INSERT INTO cities (name, country, latitude, longitude, fc_rb, fc_irex)
+        "INSERT INTO cities (name, country_id, latitude, longitude, fc_rb, fc_irex)
         VALUES ($1, $2, $3, $4, $5, $6)
-        RETURNING cities.id, cities.name, cities.country as country_id, 
-                  (SELECT name FROM countries WHERE id = cities.country) as country, 
+        RETURNING cities.id, cities.name, cities.country_id, 
+                  (SELECT name FROM countries WHERE id = cities.country_id) as country_name, 
                   cities.latitude, cities.longitude, cities.fc_rb, cities.fc_irex"
     );
 
