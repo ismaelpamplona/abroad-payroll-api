@@ -1,6 +1,6 @@
 use crate::handlers::banks;
 use axum::{
-    routing::{delete, get, post},
+    routing::{delete, get, patch, post},
     Router,
 };
 

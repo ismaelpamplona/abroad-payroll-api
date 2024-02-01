@@ -1,5 +1,5 @@
 use super::*;
-use crate::response::ErrorDetail;
+use crate::response::{ErrorDetail, SuccessDelete};
 use axum::extract::Path;
 
 pub async fn delete(Extension(pool): Extension<PgPool>, Path(id): Path<Uuid>) -> impl IntoResponse {
@@ -18,13 +18,8 @@ pub async fn delete(Extension(pool): Extension<PgPool>, Path(id): Path<Uuid>) ->
                 return (StatusCode::NOT_FOUND, Json(res)).into_response();
             }
 
-            let meta = Meta {
-                total_count: Some(1),
-                page: Some(1),
-                page_size: Some(1),
-            };
-            let response = ApiResponse::success_list(vec![] as Vec<BankResponse>, meta);
-            (StatusCode::OK, Json(response)).into_response()
+            let res = ApiResponse::<SuccessDelete>::success_delete(id);
+            (StatusCode::OK, res).into_response()
         }
         Err(error) => {
             eprintln!("Failed to delete bank: {}", error);
