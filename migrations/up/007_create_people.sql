@@ -6,11 +6,11 @@
 
 CREATE TABLE public.people (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    "name" varchar(300) NOT NULL,
-    "role" uuid NOT NULL,
-    "class" uuid NOT NULL,
+    name varchar(300) NOT NULL,
+    role_id uuid NOT NULL,
+    class_id uuid NOT NULL,
     cpf varchar(11) NOT NULL,
-    bank uuid NOT NULL,
+    bank_id uuid NOT NULL,
     bank_agency varchar(20) NOT NULL,
     bank_agency_account varchar(20) NOT NULL,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -45,9 +45,9 @@ GRANT ALL ON TABLE public.people TO postgres;
 
 -- public.people foreign keys
 
-ALTER TABLE public.people ADD CONSTRAINT people_bank_fkey FOREIGN KEY (bank) REFERENCES public.banks(id) ON DELETE CASCADE;
-ALTER TABLE public.people ADD CONSTRAINT people_class_fkey FOREIGN KEY ("class") REFERENCES public.classes(id) ON DELETE CASCADE;
-ALTER TABLE public.people ADD CONSTRAINT people_role_fkey FOREIGN KEY ("role") REFERENCES public.roles(id) ON DELETE CASCADE;
+ALTER TABLE public.people ADD CONSTRAINT people_bank_fkey FOREIGN KEY (bank_id) REFERENCES public.banks(id) ON DELETE RESTRICT;
+ALTER TABLE public.people ADD CONSTRAINT people_class_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON DELETE RESTRICT;
+ALTER TABLE public.people ADD CONSTRAINT people_role_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE RESTRICT;
 
 
 

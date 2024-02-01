@@ -7,10 +7,11 @@
 CREATE TABLE public.dependents (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
 	"name" varchar(300) NOT NULL,
-	person uuid NOT NULL,
-	start_date timestamp NULL,
+	person_id uuid NOT NULL,
+    birth_date timestamp NOT NULL,
+	start_date timestamp NOT NULL,
 	end_date timestamp NULL,
-	"type" uuid NOT NULL,
+	type_id uuid NOT NULL,
 	ir bool NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
@@ -42,7 +43,7 @@ GRANT ALL ON TABLE public.dependents TO postgres;
 
 -- public.dependents foreign keys
 
-ALTER TABLE public.dependents ADD CONSTRAINT dependents_person_fkey FOREIGN KEY (person) REFERENCES public.people(id) ON DELETE CASCADE;
-ALTER TABLE public.dependents ADD CONSTRAINT dependents_type_fkey FOREIGN KEY ("type") REFERENCES public.dependents_types(id) ON DELETE CASCADE;
+ALTER TABLE public.dependents ADD CONSTRAINT dependents_person_fkey FOREIGN KEY (person_id) REFERENCES public.people(id) ON DELETE RESTRICT;
+ALTER TABLE public.dependents ADD CONSTRAINT dependents_type_fkey FOREIGN KEY (type_id) REFERENCES public.dependents_types(id) ON DELETE RESTRICT;
 
 

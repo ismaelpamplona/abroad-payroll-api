@@ -7,7 +7,7 @@
 CREATE TABLE public.dependents_types (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
 	"name" varchar(300) NOT NULL,
-	value numeric(5, 2) NOT NULL,
+	value float8 NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
 	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),

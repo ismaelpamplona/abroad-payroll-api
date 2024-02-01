@@ -6,16 +6,16 @@
 
 CREATE TABLE public.fc_rf_by_roles (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
-	"role" uuid NOT NULL,
-	"class" uuid NOT NULL,
-	value numeric(10, 4) NOT NULL,
+	role_id uuid NOT NULL,
+	class_id uuid NOT NULL,
+	value float8 NOT NULL,
 	law varchar(200) NOT NULL,
 	law_date timestamp NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
 	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT fc_rf_by_roles_pkey PRIMARY KEY (id),
-	CONSTRAINT unique_fc_rf_role_class UNIQUE (role, class)
+	CONSTRAINT unique_fc_rf_role_class UNIQUE (role_id, class_id)
 );
 
 -- Table Triggers
@@ -42,5 +42,5 @@ GRANT ALL ON TABLE public.fc_rf_by_roles TO postgres;
 
 -- public.fc_rf_by_roles foreign keys
 
-ALTER TABLE public.fc_rf_by_roles ADD CONSTRAINT fc_rf_by_roles_class_fkey FOREIGN KEY ("class") REFERENCES public.classes(id) ON DELETE CASCADE;
-ALTER TABLE public.fc_rf_by_roles ADD CONSTRAINT fc_rf_by_roles_role_fkey FOREIGN KEY ("role") REFERENCES public.roles(id) ON DELETE CASCADE;
+ALTER TABLE public.fc_rf_by_roles ADD CONSTRAINT fc_rf_by_roles_class_fkey FOREIGN KEY (class_id) REFERENCES public.classes(id) ON DELETE RESTRICT;
+ALTER TABLE public.fc_rf_by_roles ADD CONSTRAINT fc_rf_by_roles_role_fkey FOREIGN KEY (role_id) REFERENCES public.roles(id) ON DELETE RESTRICT;

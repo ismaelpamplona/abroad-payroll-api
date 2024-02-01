@@ -7,7 +7,7 @@
 CREATE TABLE public.cities (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
 	"name" varchar(100) NOT NULL,
-	country uuid NOT NULL,
+	country_id uuid NOT NULL,
 	latitude float8 NOT NULL,
 	longitude float8 NOT NULL,
 	fc_rb float8 NOT NULL,
@@ -17,7 +17,7 @@ CREATE TABLE public.cities (
 	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT cities_name_key UNIQUE (name),
 	CONSTRAINT cities_pkey PRIMARY KEY (id),
-	CONSTRAINT unique_country_city UNIQUE (country, name)
+	CONSTRAINT unique_country_city UNIQUE (country_id, name)
 );
 
 -- Table Triggers
@@ -44,4 +44,4 @@ GRANT ALL ON TABLE public.cities TO postgres;
 
 -- public.cities foreign keys
 
-ALTER TABLE public.cities ADD CONSTRAINT cities_country_fkey FOREIGN KEY (country) REFERENCES public.countries(id) ON DELETE CASCADE;
+ALTER TABLE public.cities ADD CONSTRAINT cities_country_fkey FOREIGN KEY (country_id) REFERENCES public.countries(id) ON DELETE RESTRICT;

@@ -4,5 +4,5 @@
 --     is_13_advance BOOLEAN NOT NULL,
 --     is_vacation BOOLEAN NOT NULL,
 --     is_rent BOOLEAN NOT NULL,
---     exchange_rate NUMERIC(10, 4) NOT NULL
+--     exchange_rate float8 NOT NULL
 -- );

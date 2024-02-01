@@ -6,8 +6,8 @@
 
 CREATE TABLE public.time_served_abroad (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
-	city uuid NOT NULL,
-	person uuid NOT NULL,
+	city_id uuid NOT NULL,
+	person_id uuid NOT NULL,
 	boarding_date timestamp NULL,
 	start_date timestamp NULL,
 	end_date timestamp NULL,
@@ -44,5 +44,5 @@ GRANT ALL ON TABLE public.time_served_abroad TO postgres;
 
 -- public.time_served_abroad foreign keys
 
-ALTER TABLE public.time_served_abroad ADD CONSTRAINT time_served_abroad_city_fkey FOREIGN KEY (city) REFERENCES public.cities(id) ON DELETE CASCADE;
-ALTER TABLE public.time_served_abroad ADD CONSTRAINT time_served_abroad_person_fkey FOREIGN KEY (person) REFERENCES public.people(id) ON DELETE CASCADE;
+ALTER TABLE public.time_served_abroad ADD CONSTRAINT time_served_abroad_city_fkey FOREIGN KEY (city_id) REFERENCES public.cities(id) ON DELETE RESTRICT;
+ALTER TABLE public.time_served_abroad ADD CONSTRAINT time_served_abroad_person_fkey FOREIGN KEY (person_id) REFERENCES public.people(id) ON DELETE RESTRICT;
