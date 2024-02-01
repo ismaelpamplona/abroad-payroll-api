@@ -1,7 +1,8 @@
-use axum::http::StatusCode;
+use axum::{http::StatusCode, Json};
 use serde::{Deserialize, Serialize};
 use sqlx::error::Error;
 use std::convert::TryInto;
+use uuid::Uuid;
 
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
@@ -21,6 +22,12 @@ pub struct Meta {
 pub struct ErrorDetail {
     pub code: u16,
     pub message: String,
+}
+
+#[derive(Serialize)]
+pub struct SuccessDelete {
+    id: Uuid,
+    message: String,
 }
 
 #[derive(Deserialize)]
@@ -66,6 +73,14 @@ impl<T> ApiResponse<T> {
             meta: None,
             error: None,
         }
+    }
+
+    pub fn success_delete(id: Uuid) -> Json<SuccessDelete> {
+        let response = SuccessDelete {
+            id,
+            message: format!("Resource has been successfully deleted."),
+        };
+        Json(response)
     }
 
     pub fn error(error: ErrorDetail) -> Self {
@@ -116,7 +131,7 @@ pub fn handle_error(error: &Error) -> ErrorDetail {
             "23505" => (StatusCode::CONFLICT, "This data already exists"),
             _ => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
         },
-        None => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
+        None => (StatusCode::NOT_FOUND, "Not found"),
     };
 
     ErrorDetail {
