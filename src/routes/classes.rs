@@ -1,6 +1,6 @@
 use crate::handlers::classes;
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, patch, post},
     Router,
 };
 
@@ -9,4 +9,5 @@ pub fn routes() -> Router {
         .route("/", get(classes::list))
         .route("/:id", get(classes::get_by_id))
         .route("/", post(classes::save))
+        .route("/:id", delete(classes::delete))
 }
