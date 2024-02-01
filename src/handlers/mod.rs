@@ -4,6 +4,9 @@ pub mod banks;
 pub mod cities;
 pub mod classes;
 pub mod countries;
+pub mod dependents;
+pub mod dependents_types;
+pub mod people;
 pub mod roles;
 pub mod roles_classes_indexes;
 
