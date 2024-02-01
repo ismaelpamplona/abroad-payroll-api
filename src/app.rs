@@ -1,5 +1,5 @@
 use crate::handlers;
-use crate::routes::{banks, cities, classes, countries, roles, roles_classes_indexes};
+use crate::routes;
 use axum::{routing::get, Extension, Router};
 use sqlx::PgPool;
 use std::{env, net::SocketAddr};
@@ -15,12 +15,18 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = Router::new()
         .route("/", get(handlers::get_root)) // Root route
-        .nest("/classes", classes::routes())
-        .nest("/roles", roles::routes())
-        .nest("/roles-classes-indexes", roles_classes_indexes::routes())
-        .nest("/banks", banks::routes())
-        .nest("/countries", countries::routes())
-        .nest("/cities", cities::routes())
+        .nest("/classes", routes::classes::routes())
+        .nest("/roles", routes::roles::routes())
+        .nest(
+            "/roles-classes-indexes",
+            routes::roles_classes_indexes::routes(),
+        )
+        .nest("/banks", routes::banks::routes())
+        .nest("/countries", routes::countries::routes())
+        .nest("/cities", routes::cities::routes())
+        .nest("/people", routes::people::routes())
+        .nest("/dependents-types", routes::dependents_types::routes())
+        .nest("/dependents", routes::dependents::routes())
         .layer(Extension(pool));
 
     let port: u16 = env::var("APP_PORT")

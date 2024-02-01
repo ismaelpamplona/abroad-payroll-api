@@ -24,8 +24,8 @@ pub async fn list(
     let count_query = format!(
         "SELECT COUNT(*) 
          FROM roles_classes_indexes rci
-         JOIN roles r ON rci.role = r.id
-         JOIN classes c ON rci.class = c.id
+         JOIN roles r ON rci.role_id = r.id
+         JOIN classes c ON rci.class_id = c.id
          {}",
         where_clause
     );
@@ -40,18 +40,18 @@ pub async fn list(
     let query = format!(
         "SELECT 
             rci.id as id,
-            r.id as role_id,
+            r.role_id,
             r.name as role_name,
-            c.id as class_id,
+            r.class_id,
             c.name as class_name,
             rci.fc_rb,
             rci.fc_irex
         FROM 
             roles_classes_indexes rci
         JOIN 
-            roles r ON rci.role = r.id
+            roles r ON rci.role_id = r.id
         JOIN 
-            classes c ON rci.class = c.id
+            classes c ON rci.class_id = c.id
         {} 
         ORDER BY r.name 
         LIMIT {} OFFSET {}",

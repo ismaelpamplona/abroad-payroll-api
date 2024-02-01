@@ -9,7 +9,7 @@ where
     RoleClassIndexPayload: DeserializeOwned + Send,
 {
     let query = format!(
-        "INSERT INTO roles_classes_indexes (role, class, fc_rb, fc_irex)
+        "INSERT INTO roles_classes_indexes (role_id, class_id, fc_rb, fc_irex)
         VALUES ($1, $2, $3, $4)
         RETURNING roles_classes_indexes.id, roles_classes_indexes.role as role_id, 
                   (SELECT name FROM roles WHERE id = roles_classes_indexes.role) as role_name, 
