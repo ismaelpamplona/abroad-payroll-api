@@ -1,5 +1,5 @@
 use super::*;
-use crate::response::{generate_filter_clauses, Filter, Pagination};
+use crate::response::{generate_filter_clauses, Filter, Operator, Pagination};
 use axum::extract::Query;
 
 pub async fn list(
@@ -9,6 +9,7 @@ pub async fn list(
 ) -> impl IntoResponse {
     let filters = vec![Filter {
         name: "name",
+        op: Operator::ILIKE,
         val: filters.names.as_ref(),
         conj: "OR",
     }];

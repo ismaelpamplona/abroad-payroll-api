@@ -29,6 +29,7 @@ pub struct DependentTypeResponse {
     id: Uuid,
     name: String,
     value: f64,
+    e_tag: Uuid,
 }
 
 #[derive(Deserialize)]
