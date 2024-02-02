@@ -27,6 +27,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .nest("/people", routes::people::routes())
         .nest("/dependents-types", routes::dependents_types::routes())
         .nest("/dependents", routes::dependents::routes())
+        .nest("/time-served-abroad", routes::time_served_abroad::routes())
         .layer(Extension(pool));
 
     let port: u16 = env::var("APP_PORT")

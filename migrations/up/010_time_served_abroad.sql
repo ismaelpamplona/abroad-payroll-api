@@ -9,7 +9,7 @@ CREATE TABLE public.time_served_abroad (
 	city_id uuid NOT NULL,
 	person_id uuid NOT NULL,
 	boarding_date timestamp NULL,
-	start_date timestamp NULL,
+	start_date timestamp NOT NULL,
 	end_date timestamp NULL,
 	law varchar(200) NOT NULL,
 	law_date timestamp NOT NULL,

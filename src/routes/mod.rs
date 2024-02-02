@@ -7,3 +7,4 @@ pub mod dependents_types;
 pub mod people;
 pub mod roles;
 pub mod roles_classes_indexes;
+pub mod time_served_abroad;
