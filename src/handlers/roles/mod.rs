@@ -26,6 +26,7 @@ pub struct RolePayload {
 pub struct RoleResponse {
     id: Uuid,
     name: String,
+    e_tag: Uuid,
 }
 
 #[derive(Deserialize)]
