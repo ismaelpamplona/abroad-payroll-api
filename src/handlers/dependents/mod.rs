@@ -1,6 +1,6 @@
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
 use chrono::NaiveDateTime;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
