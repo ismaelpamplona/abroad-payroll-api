@@ -28,6 +28,7 @@ pub struct BankResponse {
     id: Uuid,
     name: String,
     number: String,
+    e_tag: Uuid,
 }
 
 #[derive(Deserialize)]
