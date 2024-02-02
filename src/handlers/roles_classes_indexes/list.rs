@@ -1,5 +1,5 @@
 use super::*;
-use crate::response::{generate_filter_clauses, Filter, Pagination};
+use crate::response::{generate_filter_clauses, Filter, Operator, Pagination};
 use axum::extract::Query;
 
 pub async fn list(
@@ -10,11 +10,13 @@ pub async fn list(
     let filters = vec![
         Filter {
             name: "r.name",
+            op: Operator::ILIKE,
             val: filters.role_names.as_ref(),
             conj: "OR",
         },
         Filter {
             name: "c.name",
+            op: Operator::ILIKE,
             val: filters.class_names.as_ref(),
             conj: "OR",
         },
@@ -22,12 +24,8 @@ pub async fn list(
     let where_clause = generate_filter_clauses(filters);
 
     let count_query = format!(
-        "SELECT COUNT(*) 
-         FROM roles_classes_indexes rci
-         JOIN roles r ON rci.role_id = r.id
-         JOIN classes c ON rci.class_id = c.id
-         {}",
-        where_clause
+        "SELECT COUNT(*) FROM roles_classes_indexes rci{} {}",
+        JOIN_QUERY, where_clause
     );
 
     let total_count: i64 = sqlx::query_scalar(&count_query)
@@ -38,24 +36,8 @@ pub async fn list(
     let page_size = pagination.page_size(total_count as usize);
 
     let query = format!(
-        "SELECT 
-            rci.id as id,
-            r.role_id,
-            r.name as role_name,
-            r.class_id,
-            c.name as class_name,
-            rci.fc_rb,
-            rci.fc_irex
-        FROM 
-            roles_classes_indexes rci
-        JOIN 
-            roles r ON rci.role_id = r.id
-        JOIN 
-            classes c ON rci.class_id = c.id
-        {} 
-        ORDER BY r.name 
-        LIMIT {} OFFSET {}",
-        where_clause, page_size, offset
+        "{} {} {} ORDER BY r.name  LIMIT {} OFFSET {}",
+        SELECT_QUERY, JOIN_QUERY, where_clause, page_size, offset
     );
 
     let result = sqlx::query_as::<_, RoleClassIndexResponse>(&query)

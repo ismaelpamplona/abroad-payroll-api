@@ -34,6 +34,7 @@ pub struct RoleClassIndexResponse {
     class_name: String,
     fc_rb: f64,
     fc_irex: f64,
+    e_tag: Uuid,
 }
 
 #[derive(Deserialize)]
@@ -41,3 +42,20 @@ pub struct RoleClassFilter {
     role_names: Option<String>,
     class_names: Option<String>,
 }
+
+pub const SELECT_QUERY: &str = "
+    SELECT 
+        rci.id as id,
+        rci.role_id,
+        r.name as role_name,
+        rci.class_id,
+        c.name as class_name,
+        rci.fc_rb,
+        rci.fc_irex,
+        rci.e_tag
+    FROM roles_classes_indexes rci";
+
+pub const JOIN_QUERY: &str = "
+    JOIN roles r ON rci.role_id = r.id
+    JOIN classes c ON rci.class_id = c.id
+";
