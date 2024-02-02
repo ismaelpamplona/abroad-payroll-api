@@ -9,17 +9,17 @@ where
     PersonPayload: DeserializeOwned + Send,
 {
     let query = format!(
-        "INSERT INTO public.people (name, role_id, class_id, cpf, bank_id, bank_agency, bank_agency_account)
+        "INSERT INTO people (name, role_id, class_id, cpf, bank_id, bank_agency, bank_agency_account)
         VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING public.people.id, public.people.name, public.people.role as role_id, 
-                  (SELECT name FROM public.roles WHERE id = public.people.role) as role_name, 
-                  public.people.class as class_id,
-                  (SELECT name FROM public.classes WHERE id = public.people.class) as class_name, 
-                  public.people.cpf, public.people.bank as bank_id, 
-                  (SELECT name FROM public.banks WHERE id = public.people.bank) as bank_name, 
-                  (SELECT number FROM public.banks WHERE id = public.people.bank) as bank_number, 
-                  public.people.bank_agency, public.people.bank_agency_account, 
-                  public.people.created_at, public.people.updated_at, public.people.e_tag"
+        RETURNING people.id, people.name, people.role_id, 
+                  (SELECT name FROM roles WHERE id = people.role_id) as role_name, 
+                  people.class_id,
+                  (SELECT name FROM classes WHERE id = people.class_id) as class_name, 
+                  people.cpf, people.bank_id, 
+                  (SELECT name FROM banks WHERE id = people.bank_id) as bank_name, 
+                  (SELECT number FROM banks WHERE id = people.bank_id) as bank_number, 
+                  people.bank_agency, people.bank_agency_account, 
+                  people.created_at, people.updated_at, people.e_tag"
     );
 
     let result = sqlx::query_as::<_, PersonResponse>(&query)

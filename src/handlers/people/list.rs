@@ -1,5 +1,5 @@
 use super::*;
-use crate::response::{generate_filter_clauses, Filter, Pagination};
+use crate::response::{generate_filter_clauses, Filter, Operator, Pagination};
 use axum::extract::Query;
 
 pub async fn list(
@@ -9,46 +9,56 @@ pub async fn list(
 ) -> impl IntoResponse {
     let filters = vec![
         Filter {
-            name: "name",
+            name: "p.name",
+            op: Operator::ILIKE,
             val: filters.names.as_ref(),
             conj: "OR",
         },
         Filter {
-            name: "role_name",
+            name: "r.name",
+            op: Operator::ILIKE,
             val: filters.role_names.as_ref(),
             conj: "OR",
         },
         Filter {
-            name: "class_name",
+            name: "c.name",
+            op: Operator::ILIKE,
             val: filters.class_names.as_ref(),
             conj: "OR",
         },
         Filter {
             name: "cpf",
+            op: Operator::ILIKE,
             val: filters.cpfs.as_ref(),
             conj: "OR",
         },
         Filter {
-            name: "bank_name",
+            name: "b.name",
+            op: Operator::ILIKE,
             val: filters.bank_names.as_ref(),
             conj: "OR",
         },
         Filter {
-            name: "agency_number",
-            val: filters.agency_numbers.as_ref(),
+            name: "b.number",
+            op: Operator::ILIKE,
+            val: filters.bank_numbers.as_ref(),
+            conj: "OR",
+        },
+        Filter {
+            name: "p.bank_agency",
+            op: Operator::ILIKE,
+            val: filters.bank_agencies.as_ref(),
             conj: "OR",
         },
     ];
     let where_clause = generate_filter_clauses(filters);
+    println!("{:?}", where_clause);
 
     let count_query = format!(
         "SELECT COUNT(*) 
-         FROM public.people p
-         JOIN public.roles r ON p.role = r.id
-         JOIN public.classes c ON p.class = c.id
-         JOIN public.banks b ON p.bank = b.id
-         {}",
-        where_clause
+         FROM people p
+         {} {}",
+        JOINS_QUERY, where_clause
     );
 
     let total_count: i64 = sqlx::query_scalar(&count_query)
@@ -59,30 +69,8 @@ pub async fn list(
     let page_size = pagination.page_size(total_count as usize);
 
     let query = format!(
-        "SELECT 
-            p.id as id,
-            p.name as name,
-            p.role as role_id,
-            r.name as role_name,
-            p.class as class_id,
-            c.name as class_name,
-            p.cpf,
-            p.bank as bank_id,
-            b.name as bank_name,
-            b.number as bank_number,
-            p.bank_agency,
-            p.bank_agency_account,
-            p.created_at,
-            p.updated_at,
-            p.e_tag
-        FROM public.people p
-        JOIN public.roles r ON p.role = r.id
-        JOIN public.classes c ON p.class = c.id
-        JOIN public.banks b ON p.bank = b.id
-        {} 
-        ORDER BY p.name 
-        LIMIT {} OFFSET {}",
-        where_clause, page_size, offset
+        "{} {} {} ORDER BY p.name LIMIT {} OFFSET {}",
+        SELECT_QUERY, JOINS_QUERY, where_clause, page_size, offset
     );
 
     let result = sqlx::query_as::<_, PersonResponse>(&query)

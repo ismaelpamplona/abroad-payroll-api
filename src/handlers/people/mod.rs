@@ -52,5 +52,30 @@ pub struct PeopleFilter {
     class_names: Option<String>,
     cpfs: Option<String>,
     bank_names: Option<String>,
-    agency_numbers: Option<String>,
+    bank_numbers: Option<String>,
+    bank_agencies: Option<String>,
 }
+
+pub const SELECT_QUERY: &str = "
+    SELECT 
+        p.id as id,
+        p.name as name,
+        p.role_id,
+        r.name as role_name,
+        p.class_id,
+        c.name as class_name,
+        p.cpf,
+        p.bank_id,
+        b.name as bank_name,
+        b.number as bank_number,
+        p.bank_agency,
+        p.bank_agency_account,
+        p.created_at,
+        p.updated_at,
+        p.e_tag
+    FROM people p";
+
+pub const JOINS_QUERY: &str = "
+    JOIN roles r ON p.role_id = r.id
+    JOIN classes c ON p.class_id = c.id
+    JOIN banks b ON p.bank_id = b.id";
