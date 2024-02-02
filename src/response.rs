@@ -52,8 +52,15 @@ impl Pagination {
 }
 
 #[derive(Debug)]
+pub enum Operator {
+    Equal,
+    ILIKE,
+}
+
+#[derive(Debug)]
 pub struct Filter<'a> {
     pub name: &'a str,
+    pub op: Operator,
     pub val: Option<&'a String>,
     pub conj: &'a str,
 }
@@ -93,13 +100,16 @@ impl<T> ApiResponse<T> {
 }
 
 pub fn generate_filter_clauses(filters: Vec<Filter>) -> String {
+    println!("{:?}", filters);
     let conditions: Vec<String> = filters
         .into_iter()
         .filter_map(|filter| {
             filter.val.as_ref().map(|value| {
-                value
-                    .split(',')
-                    .map(|val| format!("{} ILIKE '%{}%'", filter.name, val))
+                let value_parts = value.split(',').map(|val| match filter.op {
+                    Operator::ILIKE => format!("{} ILIKE '%{}%'", filter.name, val),
+                    Operator::Equal => format!("{} = '{}'", filter.name, val),
+                });
+                value_parts
                     .collect::<Vec<String>>()
                     .join(&format!(" {} ", filter.conj))
             })
@@ -126,9 +136,14 @@ pub fn get_pg_error_code(error: &Error) -> Option<String> {
 }
 
 pub fn handle_error(error: &Error) -> ErrorDetail {
+    println!("{:?}", error);
     let (status_code, message) = match get_pg_error_code(&error) {
         Some(code) => match code.as_str() {
             "23505" => (StatusCode::CONFLICT, "This data already exists"),
+            "23503" => (
+                StatusCode::UNPROCESSABLE_ENTITY,
+                "Cannot delete/update because it is still linked to other related data.",
+            ),
             _ => (StatusCode::INTERNAL_SERVER_ERROR, "Internal server error"),
         },
         None => (StatusCode::NOT_FOUND, "Not found"),
