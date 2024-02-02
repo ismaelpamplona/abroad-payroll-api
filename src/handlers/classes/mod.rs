@@ -26,6 +26,7 @@ pub struct ClassPayload {
 pub struct ClassResponse {
     id: Uuid,
     name: String,
+    e_tag: Uuid,
 }
 
 #[derive(Deserialize)]
