@@ -26,6 +26,7 @@ pub struct CountryPayload {
 pub struct CountryResponse {
     id: Uuid,
     name: String,
+    e_tag: Uuid,
 }
 
 #[derive(Deserialize)]
