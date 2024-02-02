@@ -1,5 +1,5 @@
 use super::*;
-use crate::response::{generate_filter_clauses, Filter, Pagination};
+use crate::response::{generate_filter_clauses, Filter, Operator, Pagination};
 use axum::extract::Query;
 
 pub async fn list(
@@ -9,24 +9,23 @@ pub async fn list(
 ) -> impl IntoResponse {
     let filters = vec![
         Filter {
-            name: "name",
+            name: "c.name",
+            op: Operator::ILIKE,
             val: filters.names.as_ref(),
             conj: "OR",
         },
         Filter {
-            name: "country",
-            val: filters.countries.as_ref(),
+            name: "co.name",
+            op: Operator::ILIKE,
+            val: filters.country_names.as_ref(),
             conj: "OR",
         },
     ];
     let where_clause = generate_filter_clauses(filters);
 
     let count_query = format!(
-        "SELECT COUNT(*) 
-         FROM cities
-         JOIN countries ON cities.country_id = countries.id
-         {}",
-        where_clause
+        "SELECT COUNT(*) FROM cities c {} {}",
+        JOINS_QUERY, where_clause
     );
 
     let total_count: i64 = sqlx::query_scalar(&count_query)
@@ -37,18 +36,8 @@ pub async fn list(
     let page_size = pagination.page_size(total_count as usize);
 
     let query = format!(
-        "SELECT 
-            c.id as id,
-            c.name as name,
-            c.country_id,
-            countries.name as country_name,
-            c.latitude,
-            c.longitude,
-            c.fc_rb,
-            c.fc_irex
-        FROM cities c
-        JOIN countries ON c.country_id = countries.id {} ORDER BY c.name LIMIT {} OFFSET {}",
-        where_clause, page_size, offset
+        "{} {} {} ORDER BY c.name LIMIT {} OFFSET {}",
+        SELECT_QUERY, JOINS_QUERY, where_clause, page_size, offset
     );
 
     let result = sqlx::query_as::<_, CityResponse>(&query)

@@ -5,23 +5,7 @@ pub async fn get_by_id(
     Extension(pool): Extension<PgPool>,
     Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let query = format!(
-        "SELECT 
-            c.id as id,
-            c.name as name,
-            c.country_id,
-            countries.name as country_name,
-            c.latitude,
-            c.longitude,
-            c.fc_rb,
-            c.fc_irex
-        FROM 
-            cities c
-        JOIN 
-            countries ON c.country_id = countries.id
-        WHERE 
-            c.id = $1"
-    );
+    let query = format!("{} {} WHERE c.id = $1", SELECT_QUERY, JOINS_QUERY);
 
     let result = sqlx::query_as::<_, CityResponse>(&query)
         .bind(&id)

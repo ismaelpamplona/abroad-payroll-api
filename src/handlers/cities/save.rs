@@ -13,7 +13,7 @@ where
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING cities.id, cities.name, cities.country_id, 
                   (SELECT name FROM countries WHERE id = cities.country_id) as country_name, 
-                  cities.latitude, cities.longitude, cities.fc_rb, cities.fc_irex"
+                  cities.latitude, cities.longitude, cities.fc_rb, cities.fc_irex, cities.e_tag"
     );
 
     let result = sqlx::query_as::<_, CityResponse>(&query)

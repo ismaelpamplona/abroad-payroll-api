@@ -37,10 +37,26 @@ pub struct CityResponse {
     longitude: f64,
     fc_rb: f64,
     fc_irex: f64,
+    e_tag: Uuid,
 }
 
 #[derive(Deserialize)]
 pub struct CityFilter {
     names: Option<String>,
-    countries: Option<String>,
+    country_names: Option<String>,
 }
+
+pub const SELECT_QUERY: &str = "
+    SELECT 
+        c.id as id,
+        c.name as name,
+        c.country_id,
+        co.name as country_name,
+        c.latitude,
+        c.longitude,
+        c.fc_rb,
+        c.fc_irex,
+        c.e_tag
+    FROM cities c";
+
+pub const JOINS_QUERY: &str = "JOIN countries co ON c.country_id = co.id";
