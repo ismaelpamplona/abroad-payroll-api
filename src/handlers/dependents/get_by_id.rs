@@ -5,25 +5,7 @@ pub async fn get_by_id(
     Extension(pool): Extension<PgPool>,
     Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let query = format!(
-        "SELECT 
-            d.id as id,
-            d.name as name,
-            d.person_id,
-            people.name as person_name,
-            d.birth_date,
-            d.start_date,
-            d.end_date,
-            d.type_id,
-            d.type_id,
-            t.name as type_name,
-            d.ir,
-        FROM dependents d
-        JOIN people p ON d.person_id = p.id 
-        JOIN dependents_types t ON d.type_id = t.id 
-        WHERE 
-            d.id = $1"
-    );
+    let query = format!("{} {} WHERE d.id = $1", SELECT_QUERY, JOINS_QUERY);
 
     let result = sqlx::query_as::<_, DependentResponse>(&query)
         .bind(&id)

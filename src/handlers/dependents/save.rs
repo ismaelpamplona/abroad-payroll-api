@@ -11,7 +11,11 @@ where
     let query =
         "INSERT INTO dependents (name, person_id, type_id, ir, birth_date, start_date, end_date)
              VALUES ($1, $2, $3, $4, $5, $6, $7)
-             RETURNING *";
+             RETURNING dependents.id, dependents.name, dependents.person_id, 
+             (SELECT name FROM people WHERE id = dependents.person_id) as person_name, 
+             dependents.type_id,
+             (SELECT name FROM dependents_types WHERE id = dependents.type_id) as type_name, 
+             dependents.ir, dependents.birth_date, dependents.start_date, dependents.end_date,  dependents.e_tag";
 
     let result = sqlx::query_as::<_, DependentResponse>(&query)
         .bind(&payload.name)
@@ -36,7 +40,7 @@ where
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save Dependent details: {}", error);
+            eprintln!("Failed to save dependent details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);

@@ -48,3 +48,23 @@ pub struct DependentFilter {
     people: Option<String>,
     ir: Option<String>,
 }
+
+pub const SELECT_QUERY: &str = "
+    SELECT
+        d.id,
+        d.name,
+        d.person_id,
+        p.name as person_name,
+        d.birth_date,
+        d.start_date,
+        d.end_date,
+        d.type_id,
+        t.name as type_name,
+        d.ir,
+        d.e_tag
+    FROM dependents d";
+
+pub const JOINS_QUERY: &str = "
+    JOIN people p ON d.person_id = p.id 
+    JOIN dependents_types t ON d.type_id = t.id 
+";

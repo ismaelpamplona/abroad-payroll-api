@@ -1,5 +1,5 @@
 use super::*;
-use crate::response::{generate_filter_clauses, Filter, Pagination};
+use crate::response::{generate_filter_clauses, Filter, Operator, Pagination};
 use axum::extract::Query;
 
 pub async fn list(
@@ -9,17 +9,20 @@ pub async fn list(
 ) -> impl IntoResponse {
     let filters = vec![
         Filter {
-            name: "name",
+            name: "d.name",
+            op: Operator::ILIKE,
             val: filters.names.as_ref(),
             conj: "OR",
         },
         Filter {
-            name: "person",
+            name: "p.name",
+            op: Operator::ILIKE,
             val: filters.people.as_ref(),
             conj: "OR",
         },
         Filter {
-            name: "ir",
+            name: "d.ir",
+            op: Operator::Equal,
             val: filters.ir.as_ref(),
             conj: "OR",
         },
@@ -28,12 +31,8 @@ pub async fn list(
     let where_clause = generate_filter_clauses(filters);
 
     let count_query = format!(
-        "SELECT COUNT(*) 
-         FROM dependents d
-         JOIN people p ON d.person_id = p.id
-         JOIN dependents_types t ON d.type_id = t.id 
-         {}",
-        where_clause
+        "SELECT COUNT(*) FROM dependents d {} {}",
+        JOINS_QUERY, where_clause
     );
 
     let total_count: i64 = sqlx::query_scalar(&count_query)
@@ -45,23 +44,8 @@ pub async fn list(
     let page_size = pagination.page_size(total_count as usize);
 
     let query = format!(
-        "SELECT
-            d.id,
-            d.name,
-            d.person_id,
-            p.name as person_name,
-            d.birth_date,
-            d.start_date,
-            d.end_date,
-            d.type_id,
-            t.name as type_name,
-            d.ir,
-            d.e_tag
-        FROM dependents d
-        JOIN people p ON d.person_id = p.id 
-        JOIN dependents_types t ON d.type_id = t.id 
-        {} ORDER BY name LIMIT {} OFFSET {}",
-        where_clause, page_size, offset
+        "{} {} {} ORDER BY d.name LIMIT {} OFFSET {}",
+        SELECT_QUERY, JOINS_QUERY, where_clause, page_size, offset
     );
 
     let result = sqlx::query_as::<_, DependentResponse>(&query)
