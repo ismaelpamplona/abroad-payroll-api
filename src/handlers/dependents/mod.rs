@@ -1,5 +1,5 @@
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
-use chrono::NaiveDateTime;
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
@@ -21,9 +21,9 @@ pub struct DependentPayload {
     name: String,
     person_id: Uuid,
     type_id: Uuid,
-    birth_date: NaiveDateTime,
-    start_date: NaiveDateTime,
-    end_date: Option<NaiveDateTime>,
+    birth_date: NaiveDate,
+    start_date: NaiveDate,
+    end_date: Option<NaiveDate>,
     ir: bool,
 }
 
@@ -36,9 +36,9 @@ pub struct DependentResponse {
     type_id: Uuid,
     type_name: String,
     ir: bool,
-    birth_date: NaiveDateTime,
-    start_date: NaiveDateTime,
-    end_date: Option<NaiveDateTime>,
+    birth_date: NaiveDate,
+    start_date: NaiveDate,
+    end_date: Option<NaiveDate>,
     e_tag: Uuid,
 }
 
