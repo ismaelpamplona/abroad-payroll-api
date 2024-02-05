@@ -28,6 +28,13 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
         .nest("/dependents-types", routes::dependents_types::routes())
         .nest("/dependents", routes::dependents::routes())
         .nest("/time-served-abroad", routes::time_served_abroad::routes())
+        .nest("/fc-rf-by-roles", routes::fc_rf_by_roles::routes())
+        .nest("/fc-rf-by-city", routes::fc_rf_by_city::routes())
+        .nest(
+            "/cf-limit-exchange-rate",
+            routes::cf_limit_exchange_rate::routes(),
+        )
+        .nest("/cf-limit", routes::cf_limit_value::routes())
         .layer(Extension(pool));
 
     let port: u16 = env::var("APP_PORT")
