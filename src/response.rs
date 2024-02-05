@@ -100,13 +100,14 @@ impl<T> ApiResponse<T> {
 }
 
 pub fn generate_filter_clauses(filters: Vec<Filter>) -> String {
-    println!("{:?}", filters);
     let conditions: Vec<String> = filters
         .into_iter()
         .filter_map(|filter| {
             filter.val.as_ref().map(|value| {
                 let value_parts = value.split(',').map(|val| match filter.op {
-                    Operator::ILIKE => format!("{} ILIKE '%{}%'", filter.name, val),
+                    Operator::ILIKE => {
+                        format!("unaccent({}) ILIKE unaccent('%{}%')", filter.name, val)
+                    }
                     Operator::Equal => format!("{} = '{}'", filter.name, val),
                 });
                 value_parts
