@@ -40,7 +40,7 @@ where
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save bank details: {}", error);
+            eprintln!("Failed to save time_served_abroad details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);

@@ -1,5 +1,5 @@
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
-use chrono::NaiveDateTime;
+use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 use sqlx::PgPool;
@@ -21,10 +21,10 @@ pub use save::save;
 pub struct TimeServedAbroadPayload {
     city_id: Uuid,
     person_id: Uuid,
-    start_date: NaiveDateTime,
-    end_date: Option<NaiveDateTime>,
+    start_date: NaiveDate,
+    end_date: Option<NaiveDate>,
     law: String,
-    law_date: Option<NaiveDateTime>,
+    law_date: NaiveDate,
 }
 
 #[derive(Serialize, FromRow)]
@@ -34,10 +34,10 @@ pub struct TimeServedAbroadResponse {
     city_name: String,
     person_id: Uuid,
     person_name: String,
-    start_date: NaiveDateTime,
-    end_date: Option<NaiveDateTime>,
+    start_date: NaiveDate,
+    end_date: Option<NaiveDate>,
     law: String,
-    law_date: Option<NaiveDateTime>,
+    law_date: NaiveDate,
     e_tag: Uuid,
 }
 
