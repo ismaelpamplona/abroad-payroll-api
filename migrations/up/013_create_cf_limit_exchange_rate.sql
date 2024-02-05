@@ -7,7 +7,7 @@
 CREATE TABLE public.cf_limit_exchange_rate (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
 	law varchar(200) NOT NULL,
-	law_date timestamp NOT NULL,
+	law_date date NOT NULL,
 	value float8 NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,

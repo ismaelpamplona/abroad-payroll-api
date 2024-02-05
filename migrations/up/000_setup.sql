@@ -14,3 +14,4 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE EXTENSION unaccent;

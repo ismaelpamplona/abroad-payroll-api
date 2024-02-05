@@ -64,7 +64,7 @@ VALUES
 INSERT INTO dependents_types (id, name, value)
 VALUES
     ('72c5f0ac-3510-4a02-93cc-812f8b4991ce', 'Esposa', 0.1),
-    ('e02c9988-2146-4c59-81e3-1b356f44b9c1', 'Filha solteira', 0.05);
+    ('e02c9988-2146-4c59-81e3-1b356f44b9c1', 'Filha solteira, que não receba remuneração', 0.05);
 
 --
 
@@ -86,20 +86,20 @@ VALUES
 
 INSERT INTO fc_rf_by_roles (role_id, class_id, value, law, law_date)
 VALUES
-    ('48b81286-a5aa-493e-99a7-222d464ecf2e', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', 100.00, 'D9435/2018', '2019-07-02'),
-    ('48b81286-a5aa-493e-99a7-222d464ecf2e', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', 88.00, 'D9435/2018', '2019-07-02'),
-    ('48b81286-a5aa-493e-99a7-222d464ecf2e', '7c6cc408-570a-42b5-a693-12284c5e94b5', 76.00, 'D9435/2018', '2019-07-02'),
-    ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', 55.00, 'D9435/2018', '2019-07-02'),
-    ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', 50.00, 'D9435/2018', '2019-07-02'),
-    ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', '7c6cc408-570a-42b5-a693-12284c5e94b5', 46.00, 'D9435/2018', '2019-07-02');
+    ('48b81286-a5aa-493e-99a7-222d464ecf2e', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', 150.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
+    ('48b81286-a5aa-493e-99a7-222d464ecf2e', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', 100.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
+    ('48b81286-a5aa-493e-99a7-222d464ecf2e', '7c6cc408-570a-42b5-a693-12284c5e94b5', 90.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
+    ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', 80.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
+    ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', 70.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
+    ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', '7c6cc408-570a-42b5-a693-12284c5e94b5', 70.00, 'PORTARIA MRE 402 / 2022', '2022-07-22');
 
 --
 
 INSERT INTO fc_rf_by_city (city_id, value, law, law_date)
 VALUES
-    ('cdc50f66-0591-4c2f-a58e-8cb2aa3ce415', 108.94, 'L13328/2016', '2016-07-29'),
-    ('f8efc2a0-62c3-49cd-bc7b-4088f9b59c68', 93.60, 'L13328/2016', '2016-07-29'),
-    ('f7e232b3-700b-4376-8f2e-4aa9275a1016', 76.70, 'L13328/2016', '2016-07-29');
+    ('cdc50f66-0591-4c2f-a58e-8cb2aa3ce415', 100.00, 'PORTARIA MRE 494 / 2023', '2023-09-20'),
+    ('f8efc2a0-62c3-49cd-bc7b-4088f9b59c68', 49.00, 'PORTARIA MRE 494 / 2023', '2023-09-20'),
+    ('f7e232b3-700b-4376-8f2e-4aa9275a1016', 68.00, 'PORTARIA MRE 494 / 2023', '2023-09-20');
 
 --
 
@@ -113,7 +113,7 @@ VALUES
 INSERT INTO cf_limit_value (id, law, law_date, value)
 VALUES
     ('f4d44e4f-e2a7-4a2e-84f1-9816cf51f367', 'L14520/2023', '2023-01-09', 41650.92),
-    ('a1e03c78-83f3-4e45-8cd4-72f2dd2d046c', 'L13752/2018', '2029-11-26', 39763.00);
+    ('a1e03c78-83f3-4e45-8cd4-72f2dd2d046c', 'L13752/2018', '2018-11-26', 39763.00);
 
 
 

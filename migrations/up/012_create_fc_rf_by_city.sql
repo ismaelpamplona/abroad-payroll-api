@@ -9,7 +9,7 @@ CREATE TABLE public.fc_rf_by_city (
 	city_id uuid NOT NULL,
 	value float8 NOT NULL,
 	law varchar(200) NOT NULL,
-	law_date timestamp NOT NULL,
+	law_date date NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
 	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
