@@ -115,39 +115,12 @@ VALUES
     ('f4d44e4f-e2a7-4a2e-84f1-9816cf51f367', 'L14520/2023', '2023-01-09', 41650.92),
     ('a1e03c78-83f3-4e45-8cd4-72f2dd2d046c', 'L13752/2018', '2018-11-26', 39763.00);
 
---
 
-INSERT INTO public.rf_payment_receipts (id, person_id, start_date, end_date, value, rate)
-VALUES
-    ('6f7d87d7-1660-4ab6-a7f5-76a426b1e18a', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-09-10', '2023-09-10', 3400.0, 1.0),
-    ('e84c0c4a-d041-4d7e-aa88-7125a7b9c49c', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-09-11', '2023-10-10', 3400.0, 1.0),
-    ('3f99e7bb-9a4f-4dbb-88cd-3e71f415b1e9', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-10-11', '2023-11-10', 3400.0, 1.0),
-    ('f8de1e20-7b15-4ea7-8cc9-f05300abfa8f', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-11-11', '2023-12-10', 3400.0, 1.0),
-    ('2e9d95a9-0f1f-47c0-9a57-840a7122ec27', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-12-11', '2024-01-10', 3400.0, 1.0);
 
---
 
-UPDATE public.meta_payroll_items AS p
-SET code = v.code
-FROM (VALUES
-    (CAST('0575e238-dc3f-49ce-a5ba-413418f030ec' AS uuid), '1056'),
-    (CAST('a45e8206-e6e7-4996-8d41-49891af1f31e' AS uuid), '1057'),
-    (CAST('12733c11-a07d-4675-bb54-7eec39152525' AS uuid), '1058'),
-    (CAST('29afe6a6-1985-4711-b521-dbf1abcfcc6a' AS uuid), '1060'),
-    (CAST('b3f3942d-2c0a-40f3-aa3e-93120fd49db7' AS uuid), '1523'),
-    (CAST('89d36da2-d8da-4a3d-b3b9-a7e25ab4d422' AS uuid), '1524'),
-    (CAST('a71f66ac-c2d4-43b6-9079-314391ab70f3' AS uuid), '1104'),
-    (CAST('54cfcdf8-befe-4507-ba2b-c0618191b548' AS uuid), '1986'),
-    (CAST('1bcdb645-91b3-4185-8ac7-edb9f645230a' AS uuid), '1985'),
-    (CAST('8d89b4e8-8970-47b2-a914-c43b97bae49c' AS uuid), '3056'),
-    (CAST('81e1e75e-a49c-418b-8dc8-e47bf9b2d65b' AS uuid), '1991'),
-    (CAST('5edb4f6c-e8ec-4f40-8e45-7fc28c460abf' AS uuid), '1995'),
-    (CAST('dc7dc82c-440d-43a6-b663-e127af2a6bce' AS uuid), '1990'),
-    (CAST('4ff78775-18ec-4044-8349-d586804e0d0f' AS uuid), '3990'),
-    (CAST('0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff' AS uuid), '1984'),
-    (CAST('d89dec6c-4389-4221-b7d7-95912bf4e864' AS uuid), '3057')
-) AS v(id, code)
-WHERE p.id = v.id;
+
+
+
 
 
 
