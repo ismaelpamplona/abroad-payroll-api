@@ -35,6 +35,10 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
             routes::cf_limit_exchange_rate::routes(),
         )
         .nest("/cf-limit", routes::cf_limit_value::routes())
+        .nest(
+            "/rf-payment-receipts",
+            routes::rf_payment_receipts::routes(),
+        )
         .layer(Extension(pool));
 
     let port: u16 = env::var("APP_PORT")
