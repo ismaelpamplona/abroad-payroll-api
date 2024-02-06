@@ -39,6 +39,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
             "/rf-payment-receipts",
             routes::rf_payment_receipts::routes(),
         )
+        .nest("/payroll-items", routes::meta_payroll_items::routes())
         .layer(Extension(pool));
 
     let port: u16 = env::var("APP_PORT")
