@@ -8,7 +8,10 @@ pub async fn save(
 where
     PayrollItemsPayload: DeserializeOwned + Send,
 {
-    let query = "INSERT INTO banks (name, number) VALUES ($1, $2) RETURNING *";
+    let query = format!(
+        "INSERT INTO meta_payroll_items (code, short_name, description, transaction_type) 
+        VALUES ($1, $2, $3, $4) RETURNING *"
+    );
 
     let result = sqlx::query_as::<_, PayrollItemsResponse>(&query)
         .bind(&payload.code)

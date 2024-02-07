@@ -28,7 +28,7 @@ pub struct PayrollItemsPayload {
     code: String,
     short_name: String,
     description: String,
-    transaction_type: String,
+    transaction_type: TransactionType,
 }
 
 #[derive(Serialize, FromRow, Debug)]
