@@ -9,7 +9,7 @@ CREATE TABLE public.classes (
 	"name" varchar(100) NOT NULL,
 	updated_at timestamp NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT classes_name_key UNIQUE (name),
 	CONSTRAINT classes_pkey PRIMARY KEY (id)
 );

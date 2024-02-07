@@ -10,7 +10,7 @@ CREATE TABLE public.banks (
 	"number" varchar(100) NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT banks_name_key UNIQUE (name),
 	CONSTRAINT banks_number_key UNIQUE (number),
 	CONSTRAINT banks_pkey PRIMARY KEY (id)

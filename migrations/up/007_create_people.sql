@@ -15,7 +15,7 @@ CREATE TABLE public.people (
     bank_agency_account varchar(20) NOT NULL,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp NULL,
-    e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+    e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
     CONSTRAINT people_cpf_check CHECK (length(cpf) = 11),
     CONSTRAINT people_cpf_key UNIQUE (cpf),
     CONSTRAINT people_pkey PRIMARY KEY (id)

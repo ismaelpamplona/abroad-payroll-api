@@ -10,7 +10,7 @@ CREATE TABLE public.dependents_types (
 	value float8 NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT dependents_types_pkey PRIMARY KEY (id)
 );
 

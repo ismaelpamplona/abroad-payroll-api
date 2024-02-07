@@ -13,7 +13,7 @@ CREATE TABLE public.meta_payroll_items (
 	"transaction_type" public."transaction_type" NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT meta_payroll_items_pkey PRIMARY KEY (id),
 	CONSTRAINT unique_code UNIQUE (code),
 	CONSTRAINT unique_short_name UNIQUE (short_name)

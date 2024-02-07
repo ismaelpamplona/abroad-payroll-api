@@ -12,7 +12,7 @@ CREATE TABLE public.roles_classes_indexes (
 	fc_irex float8 NOT NULL,
 	updated_at timestamp NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT roles_classes_indexes_pkey PRIMARY KEY (id),
 	CONSTRAINT unique_role_class_combination UNIQUE (role_id, class_id)
 );

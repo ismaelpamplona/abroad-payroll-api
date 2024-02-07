@@ -14,7 +14,7 @@ CREATE TABLE public.cities (
 	fc_irex float8 NOT NULL,
     updated_at timestamp NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT cities_name_key UNIQUE (name),
 	CONSTRAINT cities_pkey PRIMARY KEY (id),
 	CONSTRAINT unique_country_city UNIQUE (country_id, name)

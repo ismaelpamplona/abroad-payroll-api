@@ -9,7 +9,7 @@ CREATE TABLE public.countries (
 	"name" varchar(100) NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT countries_name_key UNIQUE (name),
 	CONSTRAINT countries_pkey PRIMARY KEY (id)
 );

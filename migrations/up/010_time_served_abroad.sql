@@ -15,7 +15,7 @@ CREATE TABLE public.time_served_abroad (
 	law_date date NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT time_served_abroad_law_key UNIQUE (law),
 	CONSTRAINT time_served_abroad_pkey PRIMARY KEY (id)
 );

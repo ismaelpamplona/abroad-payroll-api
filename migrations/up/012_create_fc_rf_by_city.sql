@@ -12,7 +12,7 @@ CREATE TABLE public.fc_rf_by_city (
 	law_date date NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
-	e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
 	CONSTRAINT fc_rf_by_city_city_key UNIQUE (city_id),
 	CONSTRAINT fc_rf_by_city_pkey PRIMARY KEY (id)
 );
