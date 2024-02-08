@@ -1,11 +1,13 @@
+use crate::response::{ApiResponse, ErrorDetail};
 use axum::{
     body::Body,
     extract::{Extension, Path},
     http::{header::HeaderMap, Request, StatusCode},
     middleware::Next,
-    response::Response,
+    response::IntoResponse,
+    Json,
 };
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
@@ -20,34 +22,47 @@ pub async fn check_etag(
     headers: HeaderMap,
     request: Request<Body>,
     next: Next,
-) -> Result<Response, StatusCode> {
+) -> impl IntoResponse {
+    let table: Option<String> = request.extensions().get::<String>().cloned();
+    println!("{:?}", table);
     if let Some(if_match) = headers.get("If-Match") {
         if let Ok(if_match_str) = if_match.to_str() {
-            let table_name = "banks";
-            let query =
-                sqlx::query_as::<_, ETagResponse>("SELECT * FROM banks WHERE id = $1").bind(&id);
-            let current_etag_result = query.fetch_one(&pool).await;
+            let query = format!("SELECT * FROM {} WHERE id = $1", table.unwrap());
+
+            let current_etag_result = sqlx::query_as::<_, ETagResponse>(&query)
+                .bind(&id)
+                .fetch_one(&pool)
+                .await;
 
             match current_etag_result {
                 Ok(current_etag_row) => {
                     let current_etag = current_etag_row.e_tag;
-                    println!("{:?}", current_etag);
-                    println!("{:?}", if_match_str);
 
                     if if_match_str == current_etag {
                         let response = next.run(request).await;
-                        return Ok(response);
+                        return response.into_response();
                     } else {
-                        return Err(StatusCode::UNAUTHORIZED);
+                        let error = ApiResponse::<()>::error(ErrorDetail {
+                            code: StatusCode::PRECONDITION_FAILED.as_u16(),
+                            message: "ETag does not match.".to_string(),
+                        });
+                        return (StatusCode::PRECONDITION_FAILED, Json(error)).into_response();
                     }
                 }
-                Err(err) => {
-                    eprintln!("Failed to fetch table: {}", err);
-                    return Err(StatusCode::UNAUTHORIZED);
+                Err(_) => {
+                    let error = ApiResponse::<()>::error(ErrorDetail {
+                        code: StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
+                        message: "Failed to fetch ETag.".to_string(),
+                    });
+                    return (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response();
                 }
             }
         }
     }
 
-    Err(StatusCode::BAD_REQUEST)
+    let error = ApiResponse::<()>::error(ErrorDetail {
+        code: StatusCode::BAD_REQUEST.as_u16(),
+        message: "If-Match header is required.".to_string(),
+    });
+    return (StatusCode::BAD_REQUEST, Json(error)).into_response();
 }

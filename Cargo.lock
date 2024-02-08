@@ -9,6 +9,7 @@ dependencies = [
  "axum",
  "bigdecimal",
  "chrono",
+ "once_cell",
  "serde",
  "sqlx",
  "tokio",

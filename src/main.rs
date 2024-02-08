@@ -1,5 +1,6 @@
 mod app;
 mod handlers;
+mod middlewares;
 mod response;
 mod routes;
 

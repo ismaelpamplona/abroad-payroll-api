@@ -1,20 +1,21 @@
 use super::*;
-use axum::extract::{Extension, Path};
+use axum::extract::Path;
 use serde::de::DeserializeOwned;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
     Path(id): Path<Uuid>,
-    Json(payload): Json<BankPayload>,
+    Json(payload): Json<BankUpdatePayload>,
 ) -> impl IntoResponse
 where
-    BankPayload: DeserializeOwned + Send,
+    BankUpdatePayload: DeserializeOwned + Send,
 {
-    let query = "INSERT INTO banks (name, number) VALUES ($1, $2) RETURNING *";
+    let query = "UPDATE banks SET name = $1, number = $2 WHERE id = $3 RETURNING *";
 
     let result = sqlx::query_as::<_, BankResponse>(&query)
         .bind(&payload.name)
         .bind(&payload.number)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -30,7 +31,7 @@ where
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save bank details: {}", error);
+            eprintln!("Failed to update bank details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);

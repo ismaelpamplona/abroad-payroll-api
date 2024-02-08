@@ -1,5 +1,3 @@
-use axum::response::IntoResponse;
-
 pub mod banks;
 pub mod cf_limit_exchange_rate;
 pub mod cf_limit_value;
@@ -16,7 +14,3 @@ pub mod rf_payment_receipts;
 pub mod roles;
 pub mod roles_classes_indexes;
 pub mod time_served_abroad;
-
-pub async fn get_root() -> impl IntoResponse {
-    "Welcome to the API!".to_string()
-}
