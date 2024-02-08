@@ -1,11 +1,8 @@
-use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
-
-use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
-use sqlx::PgPool;
-use uuid::Uuid;
-
 use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
+use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
+use serde::{Deserialize, Serialize};
+use sqlx::{FromRow, PgPool};
+use uuid::Uuid;
 
 pub mod delete;
 pub mod get_by_id;
@@ -31,7 +28,7 @@ pub struct PersonResponse {
     pub bank_number: String,
     pub bank_agency: String,
     pub bank_agency_account: String,
-    pub e_tag: Uuid,
+    pub e_tag: String,
 }
 
 #[derive(Deserialize)]

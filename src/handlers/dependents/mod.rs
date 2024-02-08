@@ -1,10 +1,9 @@
+use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
-
-use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
 
 pub mod delete;
 pub mod get_by_id;
@@ -39,7 +38,7 @@ pub struct DependentResponse {
     birth_date: NaiveDate,
     start_date: NaiveDate,
     end_date: Option<NaiveDate>,
-    e_tag: Uuid,
+    e_tag: String,
 }
 
 #[derive(Deserialize)]

@@ -1,12 +1,8 @@
-use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
-
-use bigdecimal::BigDecimal;
-use serde::{Deserialize, Serialize};
-use sqlx::FromRow;
-use sqlx::PgPool;
-use uuid::Uuid;
-
 use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
+use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
+use serde::{Deserialize, Serialize};
+use sqlx::{FromRow, PgPool};
+use uuid::Uuid;
 
 pub mod delete;
 pub mod get_by_id;
@@ -29,7 +25,7 @@ pub struct DependentTypeResponse {
     id: Uuid,
     name: String,
     value: f64,
-    e_tag: Uuid,
+    e_tag: String,
 }
 
 #[derive(Deserialize)]
