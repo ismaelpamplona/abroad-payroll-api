@@ -8,11 +8,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Debug, sqlx::Type, Serialize, Deserialize)]
 #[sqlx(type_name = "transaction_type", rename_all = "snake_case")]
