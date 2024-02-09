@@ -1,14 +1,17 @@
 use super::*;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<DependentTypePayload>,
 ) -> impl IntoResponse {
-    let query = "INSERT INTO dependents_types (name, value) VALUES ($1, $2) RETURNING *";
+    let query = "UPDATE dependents_types SET name = $1, value = $2 WHERE id = $3 RETURNING *";
 
     let result = sqlx::query_as::<_, DependentTypeResponse>(&query)
         .bind(&payload.name)
         .bind(&payload.value)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -24,7 +27,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save dependent_type details: {}", error);
+            eprintln!("Failed to update dependent type details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
