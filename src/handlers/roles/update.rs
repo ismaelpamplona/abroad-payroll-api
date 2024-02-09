@@ -1,14 +1,16 @@
 use super::*;
-use serde::de::DeserializeOwned;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<RolePayload>,
 ) -> impl IntoResponse {
-    let query = "INSERT INTO roles (name) VALUES ($1) RETURNING *";
+    let query = "UPDATE roles SET name = $1 WHERE id = $2 RETURNING *";
 
     let result = sqlx::query_as::<_, RoleResponse>(&query)
         .bind(&payload.name)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -24,7 +26,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save role details: {}", error);
+            eprintln!("Failed to update role details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
