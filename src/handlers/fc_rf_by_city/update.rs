@@ -1,13 +1,15 @@
 use super::*;
-use serde::de::DeserializeOwned;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<FcByCityPayload>,
 ) -> impl IntoResponse {
     let query = format!(
-        "INSERT INTO fc_rf_by_city AS f (city_id, value, law, law_date) 
-        VALUES ($1, $2, $3, $4) {}",
+        "UPDATE fc_rf_by_city AS f
+        SET city_id = $1, value = $2, law = $3, law_date = $4
+        WHERE id = $5 {}",
         RETURN_QUERY
     );
 
@@ -16,6 +18,7 @@ pub async fn save(
         .bind(&payload.value)
         .bind(&payload.law)
         .bind(&payload.law_date)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -31,7 +34,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save fc_rf_by_city details: {}", error);
+            eprintln!("Failed to update fc_rf_by_city details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);

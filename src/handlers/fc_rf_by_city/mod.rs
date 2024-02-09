@@ -9,11 +9,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct FcByCityPayload {
@@ -57,16 +59,11 @@ pub const SELECT_QUERY: &str = "
 
 pub const JOIN_QUERY: &str = "
     JOIN cities c ON f.city_id = c.id
-    JOIN countries co ON c.country_id = co.id
-";
+    JOIN countries co ON c.country_id = co.id";
 
-// id uuid NOT NULL DEFAULT uuid_generate_v4(),
-// city_id uuid NOT NULL,
-// value float8 NOT NULL,
-// law varchar(200) NOT NULL,
-// law_date date NOT NULL,
-// created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-// updated_at timestamp NULL,
-// e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
-// CONSTRAINT fc_rf_by_city_city_key UNIQUE (city_id),
-// CONSTRAINT fc_rf_by_city_pkey PRIMARY KEY (id)
+pub const RETURN_QUERY: &str = "
+    RETURNING f.id, f.city_id, 
+        (SELECT name FROM cities c WHERE c.id = f.city_id) as city_name, 
+        (SELECT country_id FROM cities c WHERE c.id = f.city_id) as country_id,
+        (SELECT name FROM countries co WHERE co.id = (SELECT country_id FROM cities c WHERE c.id = f.city_id)) as country_name, 
+        f.value, f.law, f.law_date, f.e_tag";
