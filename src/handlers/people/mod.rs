@@ -8,11 +8,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct PersonResponse {
@@ -76,3 +78,14 @@ pub const JOINS_QUERY: &str = "
     JOIN roles r ON p.role_id = r.id
     JOIN classes c ON p.class_id = c.id
     JOIN banks b ON p.bank_id = b.id";
+
+pub const RETURN_QUERY: &str = "
+    RETURNING people.id, people.name, people.role_id, 
+        (SELECT name FROM roles WHERE id = people.role_id) as role_name, 
+        people.class_id,
+        (SELECT name FROM classes WHERE id = people.class_id) as class_name, 
+        people.cpf, people.bank_id, 
+        (SELECT name FROM banks WHERE id = people.bank_id) as bank_name, 
+        (SELECT number FROM banks WHERE id = people.bank_id) as bank_number, 
+        people.bank_agency, people.bank_agency_account, 
+        people.created_at, people.updated_at, people.e_tag";
