@@ -9,11 +9,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct FcByRolesPayload {
@@ -60,3 +62,10 @@ pub const JOIN_QUERY: &str = "
     JOIN roles r ON f.role_id = r.id
     JOIN classes c ON f.class_id = c.id
 ";
+
+pub const RETURN_QUERY: &str = "
+    RETURNING f.id, f.role_id, 
+        (SELECT name FROM roles WHERE id = f.role_id) as role_name, 
+        f.class_id,
+        (SELECT name FROM classes WHERE id = f.class_id) as class_name, 
+        f.value, f.law, f.law_date, f.e_tag";
