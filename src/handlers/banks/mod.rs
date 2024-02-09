@@ -1,4 +1,4 @@
-use crate::response::{self, get_error_status, handle_error, ApiResponse, Meta};
+use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
@@ -20,12 +20,6 @@ pub use update::update;
 pub struct BankPayload {
     name: String,
     number: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct BankUpdatePayload {
-    pub name: Option<String>,
-    pub number: Option<String>,
 }
 
 #[derive(Serialize, FromRow, Debug)]

@@ -1,15 +1,10 @@
 use super::*;
 use axum::extract::{Extension, Path};
-use serde::de::DeserializeOwned;
 
 pub async fn save(
     Extension(pool): Extension<PgPool>,
-    Path(id): Path<Uuid>,
     Json(payload): Json<BankPayload>,
-) -> impl IntoResponse
-where
-    BankPayload: DeserializeOwned + Send,
-{
+) -> impl IntoResponse {
     let query = "INSERT INTO banks (name, number) VALUES ($1, $2) RETURNING *";
 
     let result = sqlx::query_as::<_, BankResponse>(&query)

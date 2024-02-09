@@ -1,15 +1,11 @@
 use super::*;
 use axum::extract::Path;
-use serde::de::DeserializeOwned;
 
 pub async fn update(
     Extension(pool): Extension<PgPool>,
     Path(id): Path<Uuid>,
-    Json(payload): Json<BankUpdatePayload>,
-) -> impl IntoResponse
-where
-    BankUpdatePayload: DeserializeOwned + Send,
-{
+    Json(payload): Json<BankPayload>,
+) -> impl IntoResponse {
     let query = "UPDATE banks SET name = $1, number = $2 WHERE id = $3 RETURNING *";
 
     let result = sqlx::query_as::<_, BankResponse>(&query)
