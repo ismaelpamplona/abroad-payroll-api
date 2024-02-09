@@ -1,18 +1,22 @@
 use super::*;
-use serde::de::DeserializeOwned;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<CFLimitPayload>,
 ) -> impl IntoResponse {
     let query = format!(
-        "INSERT INTO cf_limit_value (value, law, law_date) VALUES ($1, $2, $3) RETURNING *"
+        "UPDATE cf_limit_value 
+        SET value = $1, law = $2, law_date = $3 
+        WHERE id = $4 RETURNING *"
     );
 
     let result = sqlx::query_as::<_, CFLimitResponse>(&query)
         .bind(&payload.value)
         .bind(&payload.law)
         .bind(&payload.law_date)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -28,7 +32,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save cf_limit_value details: {}", error);
+            eprintln!("Failed to update cf_limit_value details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
