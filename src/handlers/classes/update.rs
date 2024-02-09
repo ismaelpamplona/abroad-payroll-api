@@ -1,13 +1,16 @@
 use super::*;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<ClassPayload>,
 ) -> impl IntoResponse {
-    let query = "INSERT INTO classes (name) VALUES ($1) RETURNING *";
+    let query = "UPDATE classes SET name = $1 WHERE id = $2 RETURNING *";
 
     let result = sqlx::query_as::<_, ClassResponse>(&query)
         .bind(&payload.name)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -23,8 +26,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save class details: {}", error);
-
+            eprintln!("Failed to update class details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
