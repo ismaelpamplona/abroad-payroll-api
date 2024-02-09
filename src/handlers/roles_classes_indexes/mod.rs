@@ -8,11 +8,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct RoleClassIndexPayload {
@@ -56,3 +58,10 @@ pub const JOIN_QUERY: &str = "
     JOIN roles r ON rci.role_id = r.id
     JOIN classes c ON rci.class_id = c.id
 ";
+
+pub const RETURN_QUERY: &str = "
+    RETURNING rci.id, rci.role_id, 
+        (SELECT name FROM roles WHERE id = rci.role_id) as role_name, 
+        rci.class_id,
+        (SELECT name FROM classes WHERE id = rci.class_id) as class_name, 
+        rci.fc_rb, rci.fc_irex, rci.e_tag";

@@ -1,15 +1,15 @@
-use crate::handlers::cities::RETURN_QUERY;
-
 use super::*;
-use serde::de::DeserializeOwned;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<RoleClassIndexPayload>,
 ) -> impl IntoResponse {
     let query = format!(
-        "INSERT INTO roles_classes_indexes AS rci (role_id, class_id, fc_rb, fc_irex)
-        VALUES ($1, $2, $3, $4) {}",
+        "UPDATE roles_classes_indexes AS rci
+        SET role_id = $1, class_id = $2, fc_rb = $3, fc_irex = $4
+        WHERE id = $5 {}",
         RETURN_QUERY
     );
 
@@ -18,6 +18,7 @@ pub async fn save(
         .bind(&payload.class_id)
         .bind(&payload.fc_rb)
         .bind(&payload.fc_irex)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -33,7 +34,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save bank details: {}", error);
+            eprintln!("Failed to update roles/class index details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
