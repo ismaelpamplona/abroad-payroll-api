@@ -45,7 +45,7 @@ fn map_path_to_tables() -> HashMap<&'static str, (&'static str, Router)> {
     let vec = vec![
         ("banks", ("banks", routes::banks::routes())),
         ("cf-limit-exchange-rate", ("cf_limit_exchange_rate", routes::cf_limit_exchange_rate::routes())),
-        ("cf-limit-value", ("cf_limit_value", routes::cf_limit_value::routes())),
+        ("cf-limit", ("cf_limit_value", routes::cf_limit_value::routes())),
         ("cities", ("cities", routes::cities::routes())),
         ("classes", ("classes", routes::classes::routes())),
         ("countries", ("countries", routes::countries::routes())),
@@ -56,6 +56,7 @@ fn map_path_to_tables() -> HashMap<&'static str, (&'static str, Router)> {
         ("payroll-items", ("meta_payroll_items", routes::meta_payroll_items::routes())),
         ("people", ("people", routes::people::routes())),
         ("rf-payment-receipts", ("rf_payment_receipts", routes::rf_payment_receipts::routes())),
+        ("roles-classes-indexes", ("roles_classes_indexes", routes::roles_classes_indexes::routes())),
         ("roles", ("roles", routes::roles::routes())),
         ("time-served-abroad", ("time_served_abroad", routes::time_served_abroad::routes())),
     ];
