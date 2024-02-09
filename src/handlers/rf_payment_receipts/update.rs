@@ -1,13 +1,15 @@
 use super::*;
-use serde::de::DeserializeOwned;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<RFPaymentReceiptsPayload>,
 ) -> impl IntoResponse {
     let query = format!(
-        "INSERT INTO rf_payment_receipts AS rf (person_id, start_date, end_date, rate, value)
-             VALUES ($1, $2, $3, $4, $5) {}",
+        "UPDATE rf_payment_receipts as rf
+        SET person_id = $1, start_date = $2, end_date = $3, rate = $4, value = $5
+        WHERE id = $6 {}",
         RETURN_QUERY
     );
 
@@ -17,6 +19,7 @@ pub async fn save(
         .bind(&payload.end_date)
         .bind(&payload.rate)
         .bind(&payload.value)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -32,7 +35,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save dependent details: {}", error);
+            eprintln!("Failed to update receipt details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);

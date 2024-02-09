@@ -9,11 +9,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct RFPaymentReceiptsPayload {
@@ -57,13 +59,7 @@ pub const JOINS_QUERY: &str = "
     JOIN people p ON rf.person_id = p.id 
 ";
 
-// id uuid NOT NULL DEFAULT uuid_generate_v4(),
-// person_id uuid NOT NULL,
-// start_date date NOT NULL,
-// end_date date NOT NULL,
-// rate float8 NOT NULL,
-// value float8 NOT NULL,
-// created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-// updated_at timestamp NULL,
-// e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
-// CONSTRAINT rf_payment_receipts_pkey PRIMARY KEY (id)
+pub const RETURN_QUERY: &str = "
+    RETURNING rf.id, rf.person_id, 
+        (SELECT name FROM people WHERE id = rf.person_id) as person_name, 
+        rf.start_date, rf.end_date,  rf.rate, rf.value, rf.e_tag";
