@@ -9,11 +9,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct TimeServedAbroadPayload {
@@ -63,3 +65,10 @@ pub const JOIN_QUERY: &str = "
     JOIN cities c ON tsa.city_id = c.id
     JOIN people p ON tsa.person_id = p.id
 ";
+
+pub const RETURN_QUERY: &str = "
+    RETURNING tsa.id, tsa.city_id, 
+        (SELECT name FROM cities WHERE id = tsa.city_id) as city_name, 
+        tsa.person_id,
+        (SELECT name FROM people WHERE id = tsa.person_id) as person_name, 
+        tsa.start_date, tsa.end_date, tsa.law, tsa.law_date, tsa.e_tag";

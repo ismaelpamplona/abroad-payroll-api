@@ -1,15 +1,16 @@
-use crate::handlers::cities::RETURN_QUERY;
-
 use super::*;
-use serde::de::DeserializeOwned;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<TimeServedAbroadPayload>,
 ) -> impl IntoResponse {
     let query = format!(
-        "INSERT INTO time_served_abroad AS tsa (city_id, person_id, start_date, end_date, law, law_date)
-        VALUES ($1, $2, $3, $4, $5, $6) {}", RETURN_QUERY
+        "UPDATE time_served_abroad AS tsa
+        SET city_id = $1, person_id = $2, start_date = $3, end_date = $4, law = $5, law_date = $6
+        WHERE id = $7 {}",
+        RETURN_QUERY
     );
 
     let result = sqlx::query_as::<_, TimeServedAbroadResponse>(&query)
@@ -19,6 +20,7 @@ pub async fn save(
         .bind(&payload.end_date)
         .bind(&payload.law)
         .bind(&payload.law_date)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -34,7 +36,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save time_served_abroad details: {}", error);
+            eprintln!("Failed to update period served abroad details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
