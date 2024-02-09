@@ -8,11 +8,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct CityPayload {
@@ -57,3 +59,8 @@ pub const SELECT_QUERY: &str = "
     FROM cities c";
 
 pub const JOINS_QUERY: &str = "JOIN countries co ON c.country_id = co.id";
+
+pub const RETURN_QUERY: &str = "
+    RETURNING cities.id, cities.name, cities.country_id, 
+        (SELECT name FROM countries WHERE id = cities.country_id) as country_name, 
+        cities.latitude, cities.longitude, cities.fc_rb, cities.fc_irex, cities.e_tag";

@@ -1,12 +1,15 @@
 use super::*;
+use axum::extract::Path;
 
-pub async fn save(
+pub async fn update(
     Extension(pool): Extension<PgPool>,
+    Path(id): Path<Uuid>,
     Json(payload): Json<CityPayload>,
 ) -> impl IntoResponse {
     let query = format!(
-        "INSERT INTO cities (name, country_id, latitude, longitude, fc_rb, fc_irex)
-        VALUES ($1, $2, $3, $4, $5, $6) {}",
+        "UPDATE cities 
+        SET name = $1, country_id = $2, latitude = $3, longitude = $4, fc_rb = $5, fc_irex = $6
+        WHERE id = $7 {}",
         RETURN_QUERY
     );
 
@@ -17,6 +20,7 @@ pub async fn save(
         .bind(&payload.longitude)
         .bind(&payload.fc_rb)
         .bind(&payload.fc_irex)
+        .bind(&id)
         .fetch_one(&pool)
         .await;
 
@@ -32,7 +36,7 @@ pub async fn save(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to save bank details: {}", error);
+            eprintln!("Failed to update city details: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
