@@ -9,11 +9,13 @@ pub mod delete;
 pub mod get_by_id;
 pub mod list;
 pub mod save;
+pub mod update;
 
 pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
 pub use save::save;
+pub use update::update;
 
 #[derive(Serialize, Deserialize, FromRow, Debug)]
 pub struct DependentPayload {
@@ -66,4 +68,12 @@ pub const SELECT_QUERY: &str = "
 pub const JOINS_QUERY: &str = "
     JOIN people p ON d.person_id = p.id 
     JOIN dependents_types t ON d.type_id = t.id 
+";
+
+pub const RETURN_QUERY: &str = "
+    RETURNING dependents.id, dependents.name, dependents.person_id, 
+        (SELECT name FROM people WHERE id = dependents.person_id) as person_name, 
+        dependents.type_id,
+        (SELECT name FROM dependents_types WHERE id = dependents.type_id) as type_name, 
+        dependents.ir, dependents.birth_date, dependents.start_date, dependents.end_date,  dependents.e_tag
 ";
