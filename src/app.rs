@@ -59,6 +59,7 @@ fn map_path_to_tables() -> HashMap<&'static str, (&'static str, Router)> {
         ("roles-classes-indexes", ("roles_classes_indexes", routes::roles_classes_indexes::routes())),
         ("roles", ("roles", routes::roles::routes())),
         ("time-served-abroad", ("time_served_abroad", routes::time_served_abroad::routes())),
+        ("simulation", ("payroll_simulation", routes::payroll_simulation::routes())),
     ];
     vec.into_iter().collect()
 }

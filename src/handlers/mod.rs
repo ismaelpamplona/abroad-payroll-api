@@ -9,6 +9,7 @@ pub mod dependents_types;
 pub mod fc_rf_by_city;
 pub mod fc_rf_by_roles;
 pub mod meta_payroll_items;
+pub mod payroll_simulation;
 pub mod people;
 pub mod rf_payment_receipts;
 pub mod roles;
