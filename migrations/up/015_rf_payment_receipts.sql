@@ -11,6 +11,7 @@ CREATE TABLE public.rf_payment_receipts (
 	end_date date NOT NULL,
 	rate float8 NOT NULL,
 	value float8 NOT NULL,
+    its_paid BOOLEAN,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	updated_at timestamp NULL,
 	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),

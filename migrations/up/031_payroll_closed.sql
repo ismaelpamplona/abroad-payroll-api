@@ -7,6 +7,7 @@
 CREATE TABLE public.payroll_closed (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     payroll_item uuid NULL,
+    person_id uuid NULL,
     value float8 NOT NULL,
     "date" date NOT NULL,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -39,3 +40,4 @@ EXECUTE FUNCTION enforce_unique_payroll_month_year();
 -- public.payroll_closed foreign keys
 
 ALTER TABLE public.payroll_closed ADD CONSTRAINT payroll_closed_payroll_item_fkey FOREIGN KEY (payroll_item) REFERENCES public.meta_payroll_items(id);
+ALTER TABLE public.payroll_simulation ADD CONSTRAINT payroll_closed_person_id_fkey FOREIGN KEY (person_id) REFERENCES public.people(id);
