@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: postgres
+      POSTGRES_DB: api
     volumes:
       - ./migrations/up:/docker-entrypoint-initdb.d
       - abroad-payroll-api:/var/lib/postgresql/data
@@ -21,7 +21,7 @@ services:
       - postgres
     environment:
       - APP_PORT=3030
-      - DB_URL=postgres://postgres:123456@postgres:5432/postgres
+      - DB_URL=postgres://postgres:123456@postgres:5432/api
       - JWT_SECRET=123456
     volumes:
       - ./:/app
@@ -34,7 +34,7 @@ services:
       - postgres
     environment:
       MB_DB_TYPE: postgres
-      MB_DB_DBNAME: postgres
+      MB_DB_DBNAME: metabase
       MB_DB_PORT: 5432
       MB_DB_USER: postgres
       MB_DB_PASS: 123456
