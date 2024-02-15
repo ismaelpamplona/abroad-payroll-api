@@ -19,7 +19,7 @@ Todos os valores calculados **em dólares americanos**, conforme parágrafo úni
 - SEÇÃO II "Do Vencimento ou Salário e do Soldo, no Exterior" da [lei 5.809/72](https://www.planalto.gov.br/ccivil_03/leis/L5809.htm), anexo I e II.
 - Forma de cálculo:
 
-  - Anexo I: Tabela de escalonamento vertical da retribuição básica:
+  - Anexo I: Tabela de escalonamento vertical da retribuição básica: $EvRb$
   - Anexo II: Fator de conversão da retribuição básica: $FcRb$
 
   $$Rb = EvRb \cdot FcRb$$
@@ -27,7 +27,7 @@ Todos os valores calculados **em dólares americanos**, conforme parágrafo úni
 - **Exemplo** (referência 24/01/2024):
 
   - Ministro de primeira classe: $EvRb = 94$
-  - Missão em Washington nos EUA: $EvRb = 76,70$
+  - Missão em Washington nos EUA: $FcRb = 76,70$
 
 $$Rb = 94 \cdot 76,70 = 7.209,80$$
 
