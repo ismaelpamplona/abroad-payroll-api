@@ -4,7 +4,9 @@ use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
+
 pub mod calc;
+pub mod formulas;
 
 pub use calc::calc;
 
@@ -14,7 +16,7 @@ pub struct CalcPayload {
 }
 
 #[derive(Deserialize, Serialize, FromRow, Debug)]
-pub struct SelectPeopleResponse {
+pub struct PeopleRes {
     person_id: Uuid,
     person_name: String,
     role_id: Uuid,
@@ -27,6 +29,8 @@ pub struct SelectPeopleResponse {
     country_name: String,
     city_id: Uuid,
     city_name: String,
+    city_fc_rb: f64,
+    city_fc_irex: f64,
     boarding_date: NaiveDate,
     start_date: NaiveDate,
     end_date: Option<NaiveDate>,
@@ -54,6 +58,8 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
         co.name as country_name,
         ts.city_id,
         ci.name as city_name,
+        ci.fc_rb as city_fc_rb,
+        ci.fc_irex as city_fc_irex,
         ts.boarding_date,
         ts.start_date,
         ts.end_date,
@@ -75,6 +81,20 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
     JOIN roles_classes_indexes rci ON p.role_id = rci.role_id AND p.class_id = rci.class_id
 ";
 
+#[derive(Deserialize, Serialize, FromRow, Debug)]
+pub struct DependentsRes {
+    person_id: Uuid,
+    person_name: String,
+    dependent_name: String,
+    birth_date: NaiveDate,
+    start_date: NaiveDate,
+    end_date: Option<NaiveDate>,
+    ir: bool,
+    type_id: Uuid,
+    type_name: String,
+    value: f64,
+}
+
 pub const SELECT_DEPENDENTS_QUERY: &str = "
     SELECT 
         ts.person_id,
@@ -93,6 +113,16 @@ pub const SELECT_DEPENDENTS_QUERY: &str = "
     JOIN dependents_types dt ON dt.id = d.type_id       
 ";
 
+#[derive(Deserialize, Serialize, FromRow, Debug)]
+pub struct ReceiptsRes {
+    person_id: Uuid,
+    person_name: String,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+    rate: f64,
+    value: f64,
+}
+
 pub const SELECT_RF_RECEIPTS_QUERY: &str = "
     SELECT 
         ts.person_id,
@@ -106,4 +136,24 @@ pub const SELECT_RF_RECEIPTS_QUERY: &str = "
     JOIN rf_payment_receipts rf ON rf.person_id = ts.person_id
 ";
 
-// AND rf.its_paid = FALSE
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct TimeServedAbroadRes {
+    boarding_date: NaiveDate,
+    end_date: Option<NaiveDate>,
+}
+
+pub const SELECT_TIME_SERVED_ABROAD_QUERY: &str = "
+    SELECT 
+        ts.boarding_date,
+        ts.end_date
+    FROM time_served_abroad ts
+
+";
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct PayrollData {
+    payroll_item: Uuid,
+    person_id: Uuid,
+    value: f64,
+    date: NaiveDate,
+}
