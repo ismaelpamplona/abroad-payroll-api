@@ -48,7 +48,7 @@ pub async fn calc(
             p.start_date,
             p.end_date,
             *payroll_date,
-            Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap(),
+            Uuid::parse_str(&var("ID_RB").unwrap()).unwrap(),
             p.person_id,
         );
         payroll_data.push(rb.clone());
@@ -60,7 +60,7 @@ pub async fn calc(
             p.start_date,
             p.end_date,
             *payroll_date,
-            Uuid::parse_str("a45e8206-e6e7-4996-8d41-49891af1f31e").unwrap(),
+            Uuid::parse_str(&var("ID_IREX").unwrap()).unwrap(),
             p.person_id,
         );
         payroll_data.push(irex.clone());
@@ -83,6 +83,7 @@ pub async fn calc(
         }
 
         let gets = calc_gets(result_tsa, *payroll_date, rb.value, p.person_id);
+        payroll_data.push(gets.clone());
 
         // AF - Auxílio-Familiar
         let filtered_deps: Vec<&DependentsRes> = result_dependents
@@ -90,7 +91,7 @@ pub async fn calc(
             .filter(|item| item.person_id == p.person_id)
             .collect();
 
-        dbg!(&filtered_deps);
+        // dbg!(&filtered_deps);
         println!(" - - - - - ");
     }
     // dbg!(&payroll_data);

@@ -3,6 +3,7 @@ use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
+use std::env::var;
 use uuid::Uuid;
 
 pub mod calc;
@@ -81,17 +82,14 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
     JOIN roles_classes_indexes rci ON p.role_id = rci.role_id AND p.class_id = rci.class_id
 ";
 
-#[derive(Deserialize, Serialize, FromRow, Debug)]
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
 pub struct DependentsRes {
     person_id: Uuid,
-    person_name: String,
-    dependent_name: String,
     birth_date: NaiveDate,
     start_date: NaiveDate,
     end_date: Option<NaiveDate>,
     ir: bool,
     type_id: Uuid,
-    type_name: String,
     value: f64,
 }
 

@@ -1,8 +1,6 @@
 use super::*;
 use chrono::Datelike;
 
-const DAYS_IN_MONTH: i32 = 30;
-
 pub fn is_first_day_of_month(month: &NaiveDate) -> bool {
     month.day() == 1
 }
@@ -70,7 +68,7 @@ pub fn calc_item(
 }
 
 // Function to calculate the number of years served abroad
-pub fn calc_num_years(periods: Vec<TimeServedAbroadRes>, payroll_date: NaiveDate) -> i32 {
+pub fn calc_num_years_tsa(periods: Vec<TimeServedAbroadRes>, payroll_date: NaiveDate) -> i32 {
     let mut days = 0.0;
     for period in periods {
         let start_date = period.boarding_date;
@@ -90,12 +88,66 @@ pub fn calc_gets(
     rb_value: f64,
     person_id: Uuid,
 ) -> PayrollData {
-    let percent = calc_num_years(periods, payroll_date) as f64 / 100.0;
-
+    let percent = calc_num_years_tsa(periods, payroll_date) as f64 / 100.0;
     PayrollData {
-        payroll_item: Uuid::parse_str("12733c11-a07d-4675-bb54-7eec39152525").unwrap(),
+        payroll_item: Uuid::parse_str(&var("ID_GETS").unwrap()).unwrap(),
         person_id,
         value: ((percent * rb_value * 100.0) + 0.5).floor() / 100.0,
+        date: payroll_date,
+    }
+}
+
+pub fn calc_num_years(start_date: NaiveDate, end_date: NaiveDate) -> f64 {
+    let diff = end_date.signed_duration_since(start_date).num_days() as f64;
+    diff / 365.0
+}
+
+pub fn get_years_from_date(start_date: NaiveDate, years: i32) -> NaiveDate {
+    NaiveDate::from_ymd_opt(
+        start_date.year() + years,
+        start_date.month(),
+        start_date.day(),
+    )
+    .unwrap()
+}
+
+pub fn calc_af(
+    dependents: Vec<DependentsRes>,
+    payroll_date: NaiveDate,
+    irex_value: f64,
+    person_id: Uuid,
+) -> PayrollData {
+    let mut percent = 0.0;
+    for d in dependents {
+        let first_day_payroll =
+            NaiveDate::from_ymd_opt(payroll_date.year(), payroll_date.month(), 1).unwrap();
+        let last_day_payroll = get_last_day_month(&payroll_date);
+        let is_under_21 = d.type_id == Uuid::parse_str(&var("ID_SON_UNDER_21").unwrap()).unwrap();
+        let is_student = d.type_id == Uuid::parse_str(&var("ID_SON_STUDENT").unwrap()).unwrap();
+        let is_spouse = d.type_id == Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap();
+        let is_daughter =
+            d.type_id == Uuid::parse_str(&var("ID_SINGLE_DAUGHTER").unwrap()).unwrap();
+        let is_mother = d.type_id == Uuid::parse_str(&var("ID_WIDOW_MOTHER").unwrap()).unwrap();
+        let is_single_woman =
+            d.type_id == Uuid::parse_str(&var("ID_SINGLE_WOMAN").unwrap()).unwrap();
+        let end_date = match d.end_date {
+            Some(data) => data,
+            None => get_last_day_month(&payroll_date),
+        };
+        if (d.start_date <= last_day_payroll
+            && end_date >= first_day_payroll
+            && end_date <= last_day_payroll)
+            && ((get_years_from_date(d.birth_date, 21) >= first_day_payroll && is_under_21)
+                || (get_years_from_date(d.birth_date, 24) >= first_day_payroll && is_student)
+                || (is_spouse || is_daughter || is_mother || is_single_woman))
+        {
+            percent += d.value;
+        }
+    }
+    PayrollData {
+        payroll_item: Uuid::parse_str(&var("ID_AF").unwrap()).unwrap(),
+        person_id,
+        value: ((percent * irex_value * 100.0) + 0.5).floor() / 100.0,
         date: payroll_date,
     }
 }
@@ -103,7 +155,7 @@ pub fn calc_gets(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use chrono::NaiveDate;
+    use dotenv::dotenv;
 
     #[test]
     fn test_is_first_day_of_month() {
@@ -198,13 +250,14 @@ mod tests {
 
     #[test]
     fn test_calc_item() {
+        dotenv::from_filename("db.env").ok();
         let rci_fc_rb = 94.0;
         let city_fc_rb = 76.70;
         let start = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
         let end = NaiveDate::from_ymd_opt(2024, 2, 29);
         let payroll_date = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
         let result = 7209.80;
-        let item_id = Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap();
+        let item_id = Uuid::parse_str(&var("ID_RB").unwrap()).unwrap();
         let person_id = Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap();
         assert_eq!(
             calc_item(
@@ -263,6 +316,7 @@ mod tests {
         let end = NaiveDate::from_ymd_opt(2024, 1, 4);
         let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
         let result = 791.74;
+        let item_id = Uuid::parse_str(&var("ID_IREX").unwrap()).unwrap();
         assert_eq!(
             calc_item(
                 rci_fc_irex,
@@ -298,7 +352,7 @@ mod tests {
     }
 
     #[test]
-    fn test_calc_num_years() {
+    fn test_calc_num_years_tsa() {
         let payroll_date = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
         let periods = vec![
             TimeServedAbroadRes {
@@ -310,11 +364,12 @@ mod tests {
                 end_date: Some(NaiveDate::from_ymd_opt(2021, 12, 1).unwrap()),
             },
         ];
-        assert_eq!(calc_num_years(periods, payroll_date), 6);
+        assert_eq!(calc_num_years_tsa(periods, payroll_date), 6);
     }
 
     #[test]
     fn test_calc_gets() {
+        dotenv::from_filename("db.env").ok();
         let periods = vec![TimeServedAbroadRes {
             boarding_date: NaiveDate::from_ymd_opt(2021, 1, 4).unwrap(),
             end_date: Some(NaiveDate::from_ymd_opt(2024, 1, 4).unwrap()),
@@ -333,18 +388,68 @@ mod tests {
             33.77
         );
     }
-}
 
-// pub fn calc_num_years(periods: Vec<TimeServedAbroadRes>, payroll_date: NaiveDate) -> f64 {
-//     let mut years = 0;
-//     for period in periods {
-//         let start_date = period.boarding_date;
-//         let mut end_date = get_last_day_month(&payroll_date);
-//         if let Some(end) = period.end_date {
-//             end_date = end_date.min(end);
-//         }
-//     let mut diff = end_date.signed_duration_since(start).num_days() as i32;
-//     println!("{:?}", diff);
-//     }
-//     todo!()
-// }
+    #[test]
+    fn test_calc_af() {
+        dotenv::from_filename("db.env").ok();
+        let person_id = Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap();
+        let dependents = vec![
+            DependentsRes {
+                person_id,
+                birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
+                start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+                end_date: None,
+                ir: true,
+                type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
+                value: 0.1,
+            },
+            DependentsRes {
+                person_id,
+                birth_date: NaiveDate::from_ymd_opt(2010, 1, 1).unwrap(),
+                start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+                end_date: None,
+                ir: true,
+                type_id: Uuid::parse_str(&var("ID_SON_UNDER_21").unwrap()).unwrap(),
+                value: 0.05,
+            },
+        ];
+        let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let irex_value = 791.74;
+        assert_eq!(
+            calc_af(dependents, payroll_date, irex_value, person_id).value,
+            ((irex_value * 0.15 * 100.0) + 0.5).floor() / 100.0
+        );
+
+        let dependents = vec![DependentsRes {
+            person_id,
+            birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end_date: None,
+            ir: true,
+            type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
+            value: 0.1,
+        }];
+        let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let irex_value = 791.74;
+        assert_eq!(
+            calc_af(dependents, payroll_date, irex_value, person_id).value,
+            ((irex_value * 0.1 * 100.0) + 0.5).floor() / 100.0
+        );
+
+        let dependents = vec![DependentsRes {
+            person_id,
+            birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end_date: Some(NaiveDate::from_ymd_opt(2023, 12, 29).unwrap()),
+            ir: true,
+            type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
+            value: 0.1,
+        }];
+        let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let irex_value = 791.74;
+        assert_eq!(
+            calc_af(dependents, payroll_date, irex_value, person_id).value,
+            0.0
+        );
+    }
+}

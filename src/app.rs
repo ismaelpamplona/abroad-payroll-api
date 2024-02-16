@@ -9,12 +9,12 @@ use axum::{
     Router,
 };
 use sqlx::PgPool;
-use std::{collections::HashMap, env, net::SocketAddr};
+use std::{collections::HashMap, env::var, net::SocketAddr};
 
 pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let map = map_path_to_tables();
 
-    let db_url = env::var("DB_URL").expect("DB_URL must be set");
+    let db_url = var("DB_URL").expect("DB_URL must be set");
 
     let pool = PgPool::connect(&db_url)
         .await
@@ -28,7 +28,7 @@ pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
 
     let app = app.layer(from_fn(get_path)).layer(Extension(pool));
 
-    let port: u16 = env::var("APP_PORT")
+    let port: u16 = var("APP_PORT")
         .expect("PORT must be set")
         .parse()
         .expect("PORT must be a valid u16");
