@@ -61,18 +61,12 @@ VALUES
 
 --
 
-INSERT INTO dependents_types (id, name, value)
-VALUES
-    ('72c5f0ac-3510-4a02-93cc-812f8b4991ce', 'Esposa', 0.1),
-    ('e02c9988-2146-4c59-81e3-1b356f44b9c1', 'Filha solteira, que não receba remuneração', 0.05);
-
---
-
 INSERT INTO dependents (id, name, person_id, birth_date, start_date, end_date, type_id, ir)
 VALUES
     ('2bf18dd3-370c-4f9b-8793-17e76c5f3d0a', 'Maria Oliveira', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2020-9-22', '2023-12-22', NULL, '72c5f0ac-3510-4a02-93cc-812f8b4991ce', FALSE),
-    ('d51fbb2b-8815-4a90-82a2-34a963f9f8e7', 'Luiza Silva', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2017-10-1', '2023-12-22', NULL, 'e02c9988-2146-4c59-81e3-1b356f44b9c1', TRUE),
-    ('f8f3aa4b-6629-4f43-804f-4d9a56248767', 'Lucas Santos', '6628b9b5-cf0f-492d-834b-220c7aeb2b8c', '2010-10-7', '2023-2-15', NULL, 'e02c9988-2146-4c59-81e3-1b356f44b9c1', TRUE);
+    ('d51fbb2b-8815-4a90-82a2-34a963f9f8e7', 'Luiza Silva', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2017-10-1', '2023-12-22', NULL, '4a7aa6cf-8b19-4ee1-81ac-1bb335cb63e0', TRUE),
+    ('f8f3aa4b-6629-4f43-804f-4d9a56248767', 'Lucas Santos', '6628b9b5-cf0f-492d-834b-220c7aeb2b8c', '2010-10-7', '2023-2-15', NULL, 'd5d7d1d7-31a3-41fc-b19f-2f6d150c61b9', TRUE),
+    ('d94a87ef-2f3d-4b0e-9a2a-99b87c7a4b9c', 'Raoni Santos', '6628b9b5-cf0f-492d-834b-220c7aeb2b8c', '2010-10-7', '2023-2-15', NULL, 'e02c9988-2146-4c59-81e3-1b356f44b9c1', TRUE);
 
 --
 
@@ -88,7 +82,7 @@ VALUES
 INSERT INTO fc_rf_by_roles (role_id, class_id, value, law, law_date)
 VALUES
     ('48b81286-a5aa-493e-99a7-222d464ecf2e', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', 150.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
-    ('48b81286-a5aa-493e-99a7-222d464ecf2e', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', 100.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
+    ('48b81286-a5aa-493e-99a7-222d464ecf2e', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', 100.00, 'PORTARIA MRE 402p/ 2022', '2022-07-22'),
     ('48b81286-a5aa-493e-99a7-222d464ecf2e', '7c6cc408-570a-42b5-a693-12284c5e94b5', 90.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
     ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', 80.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
     ('b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', 70.00, 'PORTARIA MRE 402 / 2022', '2022-07-22'),
