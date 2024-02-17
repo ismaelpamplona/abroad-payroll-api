@@ -1,6 +1,6 @@
 use super::*;
 use crate::response::ErrorDetail;
-use formulas::{calc_gets, calc_item};
+use formulas::{calc_af, calc_gets, calc_item};
 use sqlx::postgres::PgRow;
 use std::marker::Send;
 
@@ -90,11 +90,10 @@ pub async fn calc(
             .iter()
             .filter(|item| item.person_id == p.person_id)
             .collect();
-
-        // dbg!(&filtered_deps);
+        calc_af(filtered_deps, *payroll_date, irex.value, p.person_id);
         println!(" - - - - - ");
     }
-    // dbg!(&payroll_data);
+    dbg!(&payroll_data);
     todo!()
 }
 

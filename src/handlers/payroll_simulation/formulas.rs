@@ -112,7 +112,7 @@ pub fn get_years_from_date(start_date: NaiveDate, years: i32) -> NaiveDate {
 }
 
 pub fn calc_af(
-    dependents: Vec<DependentsRes>,
+    dependents: Vec<&DependentsRes>,
     payroll_date: NaiveDate,
     irex_value: f64,
     person_id: Uuid,
@@ -394,7 +394,7 @@ mod tests {
         dotenv::from_filename("db.env").ok();
         let person_id = Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap();
         let dependents = vec![
-            DependentsRes {
+            &DependentsRes {
                 person_id,
                 birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
                 start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
@@ -403,7 +403,7 @@ mod tests {
                 type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
                 value: 0.1,
             },
-            DependentsRes {
+            &DependentsRes {
                 person_id,
                 birth_date: NaiveDate::from_ymd_opt(2010, 1, 1).unwrap(),
                 start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
@@ -420,7 +420,7 @@ mod tests {
             ((irex_value * 0.15 * 100.0) + 0.5).floor() / 100.0
         );
 
-        let dependents = vec![DependentsRes {
+        let dependents = vec![&DependentsRes {
             person_id,
             birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
             start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
@@ -436,7 +436,7 @@ mod tests {
             ((irex_value * 0.1 * 100.0) + 0.5).floor() / 100.0
         );
 
-        let dependents = vec![DependentsRes {
+        let dependents = vec![&DependentsRes {
             person_id,
             birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
             start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
