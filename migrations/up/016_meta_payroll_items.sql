@@ -52,7 +52,7 @@ VALUES
 ('5edb4f6c-e8ec-4f40-8e45-7fc28c460abf', NULL, 'DEAGN', 'Despesas com exercício anterior da gratificação natalina', 'credit'),
 ('dc7dc82c-440d-43a6-b663-e127af2a6bce', NULL, 'DEAT', 'Despesas com exercício anterior (tributável)', 'credit'),
 ('4ff78775-18ec-4044-8349-d586804e0d0f', NULL, 'DEANT', 'Despesas com exercício anterior (não tributável)', 'credit'),
-('0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', NULL, 'IRF', 'Indenização com residencia funcional', 'credit'),
+('0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', NULL, 'IRFE', 'Indenização com residencia funcional', 'credit'),
 ('d89dec6c-4389-4221-b7d7-95912bf4e864', NULL, 'DIREX', 'Diferença IREX', 'credit');
 
 CREATE OR REPLACE FUNCTION prevent_deletion()
