@@ -113,9 +113,9 @@ $$Ac = (2 \cdot 7.209,80) + (2 \cdot 920,40) + 6.136,00 = 22.395,20$$
 
 ### d) Diárias no Exterior:
 
-### e) Auxílio-Funeral no Exterior:
+### e) Auxílio-Funeral no Exterior (Afu):
 
-### f) Auxílio-Moradia no Exterior (Rf):
+### f) Auxílio-Moradia no Exterior (IRFE):
 
 - SEÇÃO X "Do Auxílio-Moradia no Exterior" da [lei 5.809/72](https://www.planalto.gov.br/ccivil_03/leis/L5809.htm).
 - CAPÍTULO II-A "Do auxílio-moradia no exterior" do [decreto 71.733/73](https://www.planalto.gov.br/ccivil_03/decreto/D71733compilado.htm) e Anexo VI.
@@ -133,8 +133,8 @@ $$Ac = (2 \cdot 7.209,80) + (2 \cdot 920,40) + 6.136,00 = 22.395,20$$
   - Ministro de primeira classe: $EvRf = 150,00$
   - Missão em Washington nos EUA: $FcRf = 68,00$
   - $TetoRf = 150,00 \cdot 68,00 = 10.200,00$
-  - Se o valor do aluguel superior ao teto, por exemplo $11.100,00$: $Rf = 10.200,00$
-  - Se o valor do aluguel inferior ao teto, por exemplo $7.700,00$: $Rf = 7.700,00$
+  - Se o valor do aluguel superior ao teto, por exemplo $11.100,00$: $IRFE = 10.200,00$
+  - Se o valor do aluguel inferior ao teto, por exemplo $7.700,00$: $IRFE = 7.700,00$
 
   # Fechamento
 
