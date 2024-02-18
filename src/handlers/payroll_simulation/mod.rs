@@ -8,6 +8,7 @@ use uuid::Uuid;
 
 pub mod calc;
 pub mod formulas;
+pub mod utils;
 
 pub use calc::calc;
 
@@ -26,12 +27,14 @@ pub struct PeopleRes {
     class_name: String,
     rci_fc_rb: f64,
     rci_fc_irex: f64,
+    rci_fc_irfe: f64,
     country_id: Uuid,
     country_name: String,
     city_id: Uuid,
     city_name: String,
     city_fc_rb: f64,
     city_fc_irex: f64,
+    city_fc_irfe: f64,
     boarding_date: NaiveDate,
     start_date: NaiveDate,
     end_date: Option<NaiveDate>,
@@ -55,17 +58,19 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
         cl.name as class_name,
         rci.fc_rb as rci_fc_rb,
         rci.fc_irex as rci_fc_irex,
+        rcirf.value as rci_fc_irfe,
         ci.country_id,
         co.name as country_name,
         ts.city_id,
         ci.name as city_name,
         ci.fc_rb as city_fc_rb,
         ci.fc_irex as city_fc_irex,
+        cirf.value as city_fc_irfe,
         ts.boarding_date,
         ts.start_date,
         ts.end_date,
         ts.law,
-        ts.law_date,
+        ts.law_date,z
         p.cpf,
         p.bank_id,
         b.name as bank_name,
@@ -80,6 +85,8 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
     JOIN cities ci ON ts.city_id = ci.id
     JOIN countries co ON ci.country_id = co.id
     JOIN roles_classes_indexes rci ON p.role_id = rci.role_id AND p.class_id = rci.class_id
+    JOIN fc_rf_by_roles rcirf ON p.role_id = rf.role_id AND p.class_id = rf.class_id
+    JOIN fc_rf_by_city cirf ON ts.city_id = cirf.id
 ";
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]

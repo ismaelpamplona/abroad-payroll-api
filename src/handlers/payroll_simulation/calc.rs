@@ -90,8 +90,12 @@ pub async fn calc(
             .iter()
             .filter(|item| item.person_id == p.person_id)
             .collect();
-        calc_af(filtered_deps, *payroll_date, irex.value, p.person_id);
-        println!(" - - - - - ");
+        let af = calc_af(filtered_deps, *payroll_date, irex.value, p.person_id);
+        payroll_data.push(af.clone());
+
+        // IRFE -  Auxílio-Moradia no Exterior
+        let irfe = calc_af(filtered_deps, *payroll_date, irex.value, p.person_id);
+        payroll_data.push(af.clone());
     }
     dbg!(&payroll_data);
     todo!()
