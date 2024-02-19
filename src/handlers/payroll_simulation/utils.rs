@@ -1,5 +1,6 @@
 use super::*;
 use chrono::Datelike;
+use std::cmp::{max, min};
 
 pub fn is_first_day_of_month(month: &NaiveDate) -> bool {
     month.day() == 1
@@ -74,6 +75,30 @@ pub fn get_years_from_date(start_date: NaiveDate, years: i32) -> NaiveDate {
         start_date.day(),
     )
     .unwrap()
+}
+
+fn calculate_overlap_percentage(
+    start1: NaiveDate,
+    end1: NaiveDate,
+    start2: NaiveDate,
+    end2: NaiveDate,
+) -> f64 {
+    let overlap_start = max(start1, start2);
+    let overlap_end = min(end1, end2);
+
+    // If there's no overlap
+    if overlap_start > overlap_end {
+        return 1.0; // 100% non-overlapped since there's no overlap
+    }
+
+    let overlap_duration = (overlap_end - overlap_start).num_days() + 1; // +1 to include both start and end days in the count
+    let total_duration = (end2 - start2).num_days() + 1; // For the unpaid period
+
+    // Calculate non-overlapped percentage
+    let non_overlapped_duration = total_duration - overlap_duration;
+    let non_overlapped_percentage = non_overlapped_duration as f64 / total_duration as f64;
+
+    non_overlapped_percentage
 }
 
 #[cfg(test)]
@@ -185,5 +210,60 @@ mod tests {
             },
         ];
         assert_eq!(calc_num_years_tsa(periods, payroll_date), 6);
+    }
+
+    #[test]
+    fn test_calculate_overlap_percentage() {
+        // no_overlap_test()
+        let already_paid_start = NaiveDate::from_ymd_opt(2024, 3, 1).unwrap();
+        let already_paid_end = NaiveDate::from_ymd_opt(2024, 3, 31).unwrap();
+        let unpaid_start = NaiveDate::from_ymd_opt(2024, 4, 1).unwrap();
+        let unpaid_end = NaiveDate::from_ymd_opt(2024, 4, 30).unwrap();
+        let non_overlapped_percentage = calculate_overlap_percentage(
+            already_paid_start,
+            already_paid_end,
+            unpaid_start,
+            unpaid_end,
+        );
+        assert_eq!(non_overlapped_percentage, 1.0); // 100% non-overlapped
+
+        // complete_overlap_test()
+        let already_paid_start = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
+        let already_paid_end = NaiveDate::from_ymd_opt(2024, 2, 29).unwrap();
+        let unpaid_start = already_paid_start;
+        let unpaid_end = already_paid_end;
+        let non_overlapped_percentage = calculate_overlap_percentage(
+            already_paid_start,
+            already_paid_end,
+            unpaid_start,
+            unpaid_end,
+        );
+        assert_eq!(non_overlapped_percentage, 0.0); // 0% non-overlapped
+
+        // partial_overlap_start_test()
+        let already_paid_start = NaiveDate::from_ymd_opt(2024, 1, 20).unwrap();
+        let already_paid_end = NaiveDate::from_ymd_opt(2024, 2, 5).unwrap();
+        let unpaid_start = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
+        let unpaid_end = NaiveDate::from_ymd_opt(2024, 2, 29).unwrap();
+        let non_overlapped_percentage = calculate_overlap_percentage(
+            already_paid_start,
+            already_paid_end,
+            unpaid_start,
+            unpaid_end,
+        );
+        assert!((non_overlapped_percentage - 0.827586).abs() < f64::EPSILON); // Approximately 82.76% non-overlapped
+
+        // partial_overlap_end_test()
+        let already_paid_start = NaiveDate::from_ymd_opt(2024, 2, 20).unwrap();
+        let already_paid_end = NaiveDate::from_ymd_opt(2024, 3, 10).unwrap();
+        let unpaid_start = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
+        let unpaid_end = NaiveDate::from_ymd_opt(2024, 2, 28).unwrap();
+        let non_overlapped_percentage = calculate_overlap_percentage(
+            already_paid_start,
+            already_paid_end,
+            unpaid_start,
+            unpaid_end,
+        );
+        assert!((non_overlapped_percentage - 0.678571).abs() < f64::EPSILON); // Approximately 67.86% non-overlapped, considering leap year
     }
 }

@@ -120,6 +120,7 @@ pub const SELECT_DEPENDENTS_QUERY: &str = "
 
 #[derive(Deserialize, Serialize, FromRow, Debug)]
 pub struct ReceiptsRes {
+    rf_receipt_id: Uuid,
     person_id: Uuid,
     person_name: String,
     start_date: NaiveDate,
@@ -130,6 +131,7 @@ pub struct ReceiptsRes {
 
 pub const SELECT_RF_RECEIPTS_QUERY: &str = "
     SELECT 
+        rf.id as rf_receipt_id,
         ts.person_id,
         p.name as person_name,
         rf.start_date,
@@ -152,7 +154,25 @@ pub const SELECT_TIME_SERVED_ABROAD_QUERY: &str = "
         ts.boarding_date,
         ts.end_date
     FROM time_served_abroad ts
+";
 
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct PaidReceiptsRes {
+    rf_receipt_id: Uuid,
+    person_id: Uuid,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+    payroll_closed_item_id: Uuid,
+}
+
+pub const SELECT_PAID_RECEIPTS_QUERY: &str = "
+    SELECT * 
+        pr.rf_receipt_id,
+        r.person_id,
+        r.start_date,
+        r.end_date
+    FROM paid_rf_receipts pr
+    JOIN rf_payment_receipts r ON pr.rf_receipt_id = r.id;
 ";
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]

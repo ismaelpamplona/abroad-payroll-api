@@ -1,5 +1,6 @@
 use super::*;
 use chrono::Datelike;
+use std::collections::HashSet;
 use utils::*;
 
 // rb or irex
@@ -79,7 +80,32 @@ pub fn calc_af(
     }
 }
 
-pub fn calc_irfe() -> PayrollData {
+pub fn calc_irfe(
+    receipts: Vec<&ReceiptsRes>,
+    paid_receipts: Vec<&PaidReceiptsRes>,
+    payroll_date: NaiveDate,
+    rci_fc_irfe: f64,
+    city_fc_irfe: f64,
+    person_id: Uuid,
+) -> PayrollData {
+    let max = rci_fc_irfe * city_fc_irfe;
+    let mut paid_receipt_ids: HashSet<Uuid> = HashSet::new();
+    for paid_receipt in &paid_receipts {
+        paid_receipt_ids.insert(paid_receipt.rf_receipt_id);
+    }
+    for r in receipts {
+        let is_not_paid = !paid_receipt_ids.contains(&r.rf_receipt_id);
+        if is_not_paid {
+            // todo
+        }
+        //
+    }
+    // PayrollData {
+    // payroll_item: Uuid::parse_str(&var("ID_AF").unwrap()).unwrap(),
+    // person_id,
+    // value: ((percent * irex_value * 100.0) + 0.5).floor() / 100.0,
+    // date: payroll_date,
+    // }
     todo!()
 }
 

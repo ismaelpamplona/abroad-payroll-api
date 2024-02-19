@@ -1,6 +1,6 @@
 use super::*;
 use crate::response::ErrorDetail;
-use formulas::{calc_af, calc_gets, calc_item};
+use formulas::{calc_af, calc_gets, calc_irfe, calc_item};
 use sqlx::postgres::PgRow;
 use std::marker::Send;
 
@@ -94,8 +94,29 @@ pub async fn calc(
         payroll_data.push(af.clone());
 
         // IRFE -  Auxílio-Moradia no Exterior
-        let irfe = calc_af(filtered_deps, *payroll_date, irex.value, p.person_id);
-        payroll_data.push(af.clone());
+        let filtered_recps: Vec<&ReceiptsRes> = result_receipts
+            .iter()
+            .filter(|item| item.person_id == p.person_id)
+            .collect();
+
+        let paid_reipts_query = format!("{};", SELECT_PAID_RECEIPTS_QUERY);
+        let result_paid_recps: Vec<PaidReceiptsRes> =
+            fetch_all(&paid_reipts_query, payroll_date, &pool).await;
+
+        let filtered_paid_recps: Vec<&PaidReceiptsRes> = result_paid_recps
+            .iter()
+            .filter(|item| item.person_id == p.person_id)
+            .collect();
+
+        let irfe = calc_irfe(
+            filtered_recps,
+            filtered_paid_recps,
+            *payroll_date,
+            p.rci_fc_irfe,
+            p.city_fc_irfe,
+            p.person_id,
+        );
+        payroll_data.push(irfe.clone());
     }
     dbg!(&payroll_data);
     todo!()
