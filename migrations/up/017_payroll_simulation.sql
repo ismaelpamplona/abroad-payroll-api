@@ -11,10 +11,8 @@ CREATE TABLE public.payroll_simulation (
 	value float8 NOT NULL,
 	"date" date NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at timestamp NULL,
-	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4()
+	CONSTRAINT payroll_simulation_pkey PRIMARY KEY (id)
 );
-
 
 -- public.payroll_simulation foreign keys
 

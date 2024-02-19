@@ -112,14 +112,14 @@ VALUES
 
 --
 
-INSERT INTO public.rf_payment_receipts (id, person_id, start_date, end_date, value, its_paid, rate)
+INSERT INTO public.rf_payment_receipts (id, person_id, start_date, end_date, value, rate)
 VALUES
-    ('6f7d87d7-1660-4ab6-a7f5-76a426b1e18a', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-09-10', '2023-09-09', 3400.0, TRUE, 1.0),
-    ('e84c0c4a-d041-4d7e-aa88-7125a7b9c49c', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-09-11', '2023-10-10', 3400.0, TRUE, 1.0),
-    ('3f99e7bb-9a4f-4dbb-88cd-3e71f415b1e9', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-10-11', '2023-11-10', 3400.0, TRUE, 1.0),
-    ('f8de1e20-7b15-4ea7-8cc9-f05300abfa8f', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-11-11', '2023-12-10', 3400.0, FALSE, 1.0),
-    ('2e9d95a9-0f1f-47c0-9a57-840a7122ec27', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-12-11', '2024-01-10', 3400.0, FALSE, 1.0),
-    ('7b3a1a9e-6b3b-4b52-bc7d-f2f79be926b6', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2024-01-11', '2024-02-10', 3400.0, FALSE, 1.0);
+    ('6f7d87d7-1660-4ab6-a7f5-76a426b1e18a', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-08-10', '2023-09-09', 3400.0, 1.0),
+    ('e84c0c4a-d041-4d7e-aa88-7125a7b9c49c', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-09-11', '2023-10-10', 3400.0, 1.0),
+    ('3f99e7bb-9a4f-4dbb-88cd-3e71f415b1e9', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-10-11', '2023-11-10', 3400.0, 1.0),
+    ('f8de1e20-7b15-4ea7-8cc9-f05300abfa8f', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-11-11', '2023-12-10', 3400.0, 1.0),
+    ('2e9d95a9-0f1f-47c0-9a57-840a7122ec27', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2023-12-11', '2024-01-10', 3400.0, 1.0),
+    ('7b3a1a9e-6b3b-4b52-bc7d-f2f79be926b6', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '2024-01-11', '2024-02-10', 3400.0, 1.0);
 
 --
 
@@ -144,6 +144,40 @@ FROM (VALUES
     (CAST('d89dec6c-4389-4221-b7d7-95912bf4e864' AS uuid), '3057')
 ) AS v(id, code)
 WHERE p.id = v.id;
+
+-- 
+
+INSERT INTO public.payroll_simulation (id, payroll_item, person_id, value, date)
+VALUES
+    ('3040d3ca-b2fd-4a28-bb68-f618b5a13cd8', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-09-09'),
+    ('f6dc5763-3a9d-4a58-8379-81d97ec0d656', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-10-10'),
+    ('c0c2def0-5a4c-4c92-a432-acba231e0729', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-11-10');
+
+--
+
+INSERT INTO public.payroll_closed (id, payroll_item, person_id, value, date)
+VALUES
+    ('3040d3ca-b2fd-4a28-bb68-f618b5a13cd8', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-09-09'),
+    ('f6dc5763-3a9d-4a58-8379-81d97ec0d656', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-10-10'),
+    ('c0c2def0-5a4c-4c92-a432-acba231e0729', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-11-10');
+
+--
+
+INSERT INTO public.paid_rf_receipts(id, rf_receipt_id, payroll_closed_item_id)
+VALUES
+    ('53d69b91-26a5-456f-b131-82bed76b121f', '6f7d87d7-1660-4ab6-a7f5-76a426b1e18a', '3040d3ca-b2fd-4a28-bb68-f618b5a13cd8'),
+    ('7a2fd36f-5342-44e8-be40-147bd2fdd094', 'e84c0c4a-d041-4d7e-aa88-7125a7b9c49c', 'f6dc5763-3a9d-4a58-8379-81d97ec0d656'),
+    ('aec7cbed-cca9-429c-9afc-f31a9f6211fe', '3f99e7bb-9a4f-4dbb-88cd-3e71f415b1e9', 'c0c2def0-5a4c-4c92-a432-acba231e0729');
+
+
+
+
+'2023-08-10', '2023-09-09'
+'2023-09-01', '2023-10-10'
+'2023-10-11', '2023-11-10'
+'2023-11-11', '2023-12-10'
+'2023-12-11', '2024-01-10'
+'2024-01-11', '2024-02-10'
 
 
 
