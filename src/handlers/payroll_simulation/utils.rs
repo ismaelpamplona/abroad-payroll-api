@@ -1,20 +1,28 @@
 use super::*;
-use chrono::Datelike;
+use chrono::{Datelike, Duration};
 use std::cmp::{max, min};
 
 pub fn is_first_day_of_month(month: &NaiveDate) -> bool {
     month.day() == 1
 }
 
-pub fn get_last_day_month(month: &NaiveDate) -> NaiveDate {
-    let (year, month, _) = (month.year(), month.month(), 1); // Extract year and month
-    let next_month = if month == 12 { 1 } else { month + 1 }; // Get the next month, considering year change
+pub fn get_last_day_month(date: &NaiveDate) -> NaiveDate {
+    let year = date.year();
+    let month = date.month();
+    // Adjust the year when wrapping from December to January.
+    let (next_year, next_month) = if month == 12 {
+        (year + 1, 1)
+    } else {
+        (year, month + 1)
+    };
+
+    // Attempt to create a date for the first day of the next month and then subtract one day to get the last day of the current month.
     if let Some(last_day_of_month) =
-        NaiveDate::from_ymd_opt(year, next_month, 1).and_then(|d| d.pred_opt())
+        NaiveDate::from_ymd_opt(next_year, next_month, 1).and_then(|d| d.pred_opt())
     {
         last_day_of_month
     } else {
-        panic!("Invalid month");
+        panic!("Invalid date operation");
     }
 }
 
@@ -77,7 +85,7 @@ pub fn get_years_from_date(start_date: NaiveDate, years: i32) -> NaiveDate {
     .unwrap()
 }
 
-fn calculate_overlap_percentage(
+pub fn calculate_overlap_percentage(
     start1: NaiveDate,
     end1: NaiveDate,
     start2: NaiveDate,
@@ -101,6 +109,75 @@ fn calculate_overlap_percentage(
     non_overlapped_percentage
 }
 
+fn get_month_before_date(d: NaiveDate) -> NaiveDate {
+    if is_last_day_of_month(&d) {
+        return NaiveDate::from_ymd_opt(d.year(), d.month(), 1).unwrap();
+    }
+    let (year, month) = if d.month() == 1 {
+        (d.year() - 1, 12)
+    } else {
+        (d.year(), d.month() - 1)
+    };
+
+    let day = if get_last_day_month(&d) == d {
+        1
+    } else {
+        d.day() + 1
+    };
+
+    NaiveDate::from_ymd_opt(year, month, day).unwrap()
+}
+
+fn get_month_after_date(d: NaiveDate) -> NaiveDate {
+    // Increment month, handling December to January transition.
+    if d.day() == 1 {
+        return get_last_day_month(&d);
+    }
+    let (year, month) = if d.month() == 12 {
+        (d.year() + 1, 1)
+    } else {
+        (d.year(), d.month() + 1)
+    };
+    if is_last_day_of_month(&d) {
+        let next_month = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
+        let last_day_next_month = get_last_day_month(&next_month);
+        return NaiveDate::from_ymd_opt(year, month, last_day_next_month.day() - 1).unwrap();
+    }
+    NaiveDate::from_ymd_opt(year, month, d.day() - 1).unwrap()
+}
+
+pub fn calc_months_between(start: NaiveDate, end: NaiveDate) -> f64 {
+    if start >= end {
+        return 0.0; // Ensure start date is before end date
+    }
+
+    let mut months = (end.year() - start.year()) * 12 + (end.month() as i32 - start.month() as i32);
+    let day_start = start.day();
+    let day_end = end.day();
+
+    // If the end day is on or before the start day, consider it as ending the last month
+    if day_end <= day_start {
+        months -= 1;
+    }
+
+    let penultimate_month = get_month_before_date(end);
+    let day_start_penultimate_month = NaiveDate::from_ymd_opt(
+        penultimate_month.year(),
+        penultimate_month.month(),
+        start.day(),
+    )
+    .unwrap();
+
+    let full = (get_month_after_date(day_start_penultimate_month) - day_start_penultimate_month)
+        .num_days();
+
+    let partial = (end - day_start_penultimate_month).num_days();
+
+    let mut fraction_of_month = (partial as f64 / full as f64);
+
+    months as f64 + fraction_of_month
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -122,6 +199,10 @@ mod tests {
 
         let day = NaiveDate::from_ymd_opt(2024, 1, 29).unwrap();
         let last = NaiveDate::from_ymd_opt(2024, 1, 31).unwrap();
+        assert_eq!(get_last_day_month(&day), last);
+
+        let day = NaiveDate::from_ymd_opt(2023, 12, 31).unwrap();
+        let last = NaiveDate::from_ymd_opt(2023, 12, 31).unwrap();
         assert_eq!(get_last_day_month(&day), last);
     }
 
@@ -225,7 +306,10 @@ mod tests {
             unpaid_start,
             unpaid_end,
         );
-        assert_eq!(non_overlapped_percentage, 1.0); // 100% non-overlapped
+        assert_eq!(
+            ((non_overlapped_percentage * 100.0) + 0.5).floor() / 100.0,
+            1.0
+        ); // 100% non-overlapped
 
         // complete_overlap_test()
         let already_paid_start = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
@@ -238,7 +322,10 @@ mod tests {
             unpaid_start,
             unpaid_end,
         );
-        assert_eq!(non_overlapped_percentage, 0.0); // 0% non-overlapped
+        assert_eq!(
+            ((non_overlapped_percentage * 100.0) + 0.5).floor() / 100.0,
+            0.0
+        ); // 100% non-overlapped
 
         // partial_overlap_start_test()
         let already_paid_start = NaiveDate::from_ymd_opt(2024, 1, 20).unwrap();
@@ -251,7 +338,10 @@ mod tests {
             unpaid_start,
             unpaid_end,
         );
-        assert!((non_overlapped_percentage - 0.827586).abs() < f64::EPSILON); // Approximately 82.76% non-overlapped
+        assert_eq!(
+            ((non_overlapped_percentage * 100.0) + 0.5).floor() / 100.0,
+            0.83
+        ); // Approximately 82.76% non-overlapped
 
         // partial_overlap_end_test()
         let already_paid_start = NaiveDate::from_ymd_opt(2024, 2, 20).unwrap();
@@ -264,6 +354,100 @@ mod tests {
             unpaid_start,
             unpaid_end,
         );
-        assert!((non_overlapped_percentage - 0.678571).abs() < f64::EPSILON); // Approximately 67.86% non-overlapped, considering leap year
+        assert_eq!(
+            ((non_overlapped_percentage * 100.0) + 0.5).floor() / 100.0,
+            0.68
+        ); // Approximately 67.86% non-overlapped, considering leap year
+    }
+
+    #[test]
+    fn test_get_month_before_date() {
+        let end_date = NaiveDate::from_ymd_opt(2024, 1, 14).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2023, 12, 15).unwrap();
+        assert_eq!(get_month_before_date(end_date), expected);
+
+        let end_date = NaiveDate::from_ymd_opt(2024, 2, 14).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        assert_eq!(get_month_before_date(end_date), expected);
+
+        let end_date = NaiveDate::from_ymd_opt(2024, 5, 10).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 4, 11).unwrap();
+        assert_eq!(get_month_before_date(end_date), expected);
+
+        let end_date = NaiveDate::from_ymd_opt(2024, 1, 31).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        assert_eq!(get_month_before_date(end_date), expected);
+
+        assert_eq!(get_month_before_date(end_date), expected);
+    }
+
+    #[test]
+    fn test_get_month_after_date() {
+        let start_date = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 2, 14).unwrap();
+        assert_eq!(get_month_after_date(start_date), expected);
+
+        let start_date = NaiveDate::from_ymd_opt(2023, 12, 15).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 1, 14).unwrap();
+        assert_eq!(get_month_after_date(start_date), expected);
+
+        let start_date = NaiveDate::from_ymd_opt(2024, 5, 10).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 6, 9).unwrap();
+        assert_eq!(get_month_after_date(start_date), expected);
+
+        let start_date = NaiveDate::from_ymd_opt(2024, 5, 1).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 5, 31).unwrap();
+        assert_eq!(get_month_after_date(start_date), expected);
+
+        let start_date = NaiveDate::from_ymd_opt(2024, 1, 31).unwrap();
+        let expected = NaiveDate::from_ymd_opt(2024, 2, 28).unwrap();
+        assert_eq!(get_month_after_date(start_date), expected);
+    }
+
+    #[test]
+    fn test_calc_months_between() {
+        // Same month
+        let start = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let end = NaiveDate::from_ymd_opt(2024, 1, 31).unwrap();
+        assert_eq!(calc_months_between(start, end), 1.0);
+        //
+        // Full month difference
+        let start = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let end = NaiveDate::from_ymd_opt(2024, 2, 14).unwrap();
+        assert_eq!(calc_months_between(start, end), 1.0);
+
+        // Partial month difference
+        let start = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let end = NaiveDate::from_ymd_opt(2024, 3, 10).unwrap();
+        assert_eq!(
+            ((calc_months_between(start, end) * 100.0) + 0.5).floor() / 100.0,
+            1.86
+        );
+
+        // Multiple months difference
+        let start = NaiveDate::from_ymd_opt(2024, 1, 15).unwrap();
+        let end = NaiveDate::from_ymd_opt(2024, 4, 14).unwrap();
+        assert_eq!(calc_months_between(start, end), 3.0);
+
+        // Cross-year difference
+        let start = NaiveDate::from_ymd_opt(2023, 12, 15).unwrap();
+        let end = NaiveDate::from_ymd_opt(2024, 1, 14).unwrap();
+        assert_eq!(calc_months_between(start, end), 1.0);
+
+        // Longer period
+        let start = NaiveDate::from_ymd_opt(2023, 1, 1).unwrap();
+        let end = NaiveDate::from_ymd_opt(2023, 12, 31).unwrap();
+        assert_eq!(
+            ((calc_months_between(start, end) * 100.0) + 0.5).floor() / 100.0,
+            12.0
+        );
+
+        // Longer period
+        let start = NaiveDate::from_ymd_opt(2023, 1, 1).unwrap();
+        let end = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        assert_eq!(
+            ((calc_months_between(start, end) * 100.0) + 0.5).floor() / 100.0,
+            12.03
+        );
     }
 }

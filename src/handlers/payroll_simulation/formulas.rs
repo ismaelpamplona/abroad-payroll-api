@@ -88,25 +88,39 @@ pub fn calc_irfe(
     city_fc_irfe: f64,
     person_id: Uuid,
 ) -> PayrollData {
-    let max = rci_fc_irfe * city_fc_irfe;
+    let max_per_month = rci_fc_irfe * city_fc_irfe;
     let mut paid_receipt_ids: HashSet<Uuid> = HashSet::new();
     for paid_receipt in &paid_receipts {
         paid_receipt_ids.insert(paid_receipt.rf_receipt_id);
     }
+    let mut value = 0.0;
+
     for r in receipts {
         let is_not_paid = !paid_receipt_ids.contains(&r.rf_receipt_id);
         if is_not_paid {
-            // todo
+            for pr in &paid_receipts {
+                let percent = calculate_overlap_percentage(
+                    r.start_date,
+                    r.end_date,
+                    pr.start_date,
+                    pr.end_date,
+                );
+                let valid_months = calc_months_between(r.start_date, r.end_date) * percent;
+                let max_value = valid_months * max_per_month;
+                value = r.value;
+                if value > max_value {
+                    value = max_value;
+                }
+            }
         }
-        //
     }
-    // PayrollData {
-    // payroll_item: Uuid::parse_str(&var("ID_AF").unwrap()).unwrap(),
-    // person_id,
-    // value: ((percent * irex_value * 100.0) + 0.5).floor() / 100.0,
-    // date: payroll_date,
-    // }
-    todo!()
+
+    return PayrollData {
+        payroll_item: Uuid::parse_str(&var("ID_IRFE").unwrap()).unwrap(),
+        person_id,
+        value: ((value * rate * 100.0) + 0.5).floor() / 100.0,
+        date: payroll_date,
+    };
 }
 
 #[cfg(test)]
@@ -243,34 +257,7 @@ mod tests {
     fn test_calc_af() {
         dotenv::from_filename("db.env").ok();
         let person_id = Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap();
-        let dependents = vec![
-            &DependentsRes {
-                person_id,
-                birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
-                start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
-                end_date: None,
-                ir: true,
-                type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
-                value: 0.1,
-            },
-            &DependentsRes {
-                person_id,
-                birth_date: NaiveDate::from_ymd_opt(2010, 1, 1).unwrap(),
-                start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
-                end_date: None,
-                ir: true,
-                type_id: Uuid::parse_str(&var("ID_SON_UNDER_21").unwrap()).unwrap(),
-                value: 0.05,
-            },
-        ];
-        let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
-        let irex_value = 791.74;
-        assert_eq!(
-            calc_af(dependents, payroll_date, irex_value, person_id).value,
-            ((irex_value * 0.15 * 100.0) + 0.5).floor() / 100.0
-        );
-
-        let dependents = vec![&DependentsRes {
+        let res_a = DependentsRes {
             person_id,
             birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
             start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
@@ -278,7 +265,34 @@ mod tests {
             ir: true,
             type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
             value: 0.1,
-        }];
+        };
+        let res_b = DependentsRes {
+            person_id,
+            birth_date: NaiveDate::from_ymd_opt(2010, 1, 1).unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end_date: None,
+            ir: true,
+            type_id: Uuid::parse_str(&var("ID_SON_UNDER_21").unwrap()).unwrap(),
+            value: 0.05,
+        };
+        let dependents = vec![&res_a, &res_b];
+        let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let irex_value = 791.74;
+        assert_eq!(
+            calc_af(dependents, payroll_date, irex_value, person_id).value,
+            ((irex_value * 0.15 * 100.0) + 0.5).floor() / 100.0
+        );
+
+        let res_a = DependentsRes {
+            person_id,
+            birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
+            start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            end_date: None,
+            ir: true,
+            type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
+            value: 0.1,
+        };
+        let dependents = vec![&res_a];
         let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
         let irex_value = 791.74;
         assert_eq!(
@@ -286,7 +300,7 @@ mod tests {
             ((irex_value * 0.1 * 100.0) + 0.5).floor() / 100.0
         );
 
-        let dependents = vec![&DependentsRes {
+        let res_a = DependentsRes {
             person_id,
             birth_date: NaiveDate::from_ymd_opt(2000, 1, 1).unwrap(),
             start_date: NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
@@ -294,12 +308,98 @@ mod tests {
             ir: true,
             type_id: Uuid::parse_str(&var("ID_SPOUSE").unwrap()).unwrap(),
             value: 0.1,
-        }];
+        };
+        let dependents = vec![&res_a];
         let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
         let irex_value = 791.74;
         assert_eq!(
             calc_af(dependents, payroll_date, irex_value, person_id).value,
             0.0
+        );
+    }
+
+    #[test]
+    fn test_calc_irfe() {
+        dotenv::from_filename("db.env").ok();
+
+        let person_id = Uuid::parse_str("a8aaa402-957d-442d-b7f3-66c5c8e1e40e").unwrap();
+
+        let rec_a = ReceiptsRes {
+            rf_receipt_id: Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap(),
+            person_id,
+            start_date: NaiveDate::from_ymd_opt(2023, 12, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2023, 12, 31).unwrap(),
+            rate: 1.0,
+            value: 7400.00,
+        };
+        let rec_b = ReceiptsRes {
+            rf_receipt_id: Uuid::parse_str("51c1b668-5d50-443e-984d-7ce7378a0558").unwrap(),
+            person_id,
+            start_date: NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2024, 1, 31).unwrap(),
+            rate: 1.0,
+            value: 7400.00,
+        };
+        let receipts = vec![&rec_a, &rec_b];
+
+        let p_rec_a = PaidReceiptsRes {
+            rf_receipt_id: Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap(),
+            person_id,
+            start_date: NaiveDate::from_ymd_opt(2023, 12, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2023, 12, 31).unwrap(),
+            payroll_closed_item_id: Uuid::parse_str("5f9cf6da-42e5-4fcd-bfdf-3608e556da60")
+                .unwrap(),
+        };
+        let paid_receipts = vec![&p_rec_a];
+
+        let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let rci_fc_irfe = 150.00;
+        let city_fc_irfe = 68.0;
+        assert_eq!(
+            calc_irfe(
+                receipts.clone(),
+                paid_receipts.clone(),
+                payroll_date,
+                rci_fc_irfe,
+                city_fc_irfe,
+                person_id
+            )
+            .value,
+            7400.00
+        );
+
+        let rec_a = ReceiptsRes {
+            rf_receipt_id: Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap(),
+            person_id,
+            start_date: NaiveDate::from_ymd_opt(2023, 12, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2023, 12, 31).unwrap(),
+            rate: 1.0,
+            value: 7400.00,
+        };
+        let rec_b = ReceiptsRes {
+            rf_receipt_id: Uuid::parse_str("51c1b668-5d50-443e-984d-7ce7378a0558").unwrap(),
+            person_id,
+            start_date: NaiveDate::from_ymd_opt(2023, 12, 15).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2024, 1, 31).unwrap(),
+            rate: 1.0,
+            value: 11100.00,
+        };
+        let receipts = vec![&rec_a, &rec_b];
+
+        let payroll_date = NaiveDate::from_ymd_opt(2024, 1, 1).unwrap();
+        let rci_fc_irfe = 150.00;
+        let city_fc_irfe = 68.0;
+        assert_eq!(
+            calc_irfe(
+                receipts.clone(),
+                paid_receipts.clone(),
+                payroll_date,
+                rci_fc_irfe,
+                city_fc_irfe,
+                person_id
+            )
+            .value,
+            7400.00
         );
     }
 }

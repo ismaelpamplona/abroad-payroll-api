@@ -122,7 +122,6 @@ pub const SELECT_DEPENDENTS_QUERY: &str = "
 pub struct ReceiptsRes {
     rf_receipt_id: Uuid,
     person_id: Uuid,
-    person_name: String,
     start_date: NaiveDate,
     end_date: NaiveDate,
     rate: f64,
@@ -133,13 +132,11 @@ pub const SELECT_RF_RECEIPTS_QUERY: &str = "
     SELECT 
         rf.id as rf_receipt_id,
         ts.person_id,
-        p.name as person_name,
         rf.start_date,
         rf.end_date,
         rf.rate,
         rf.value
     FROM time_served_abroad ts
-    JOIN people p ON ts.person_id = p.id
     JOIN rf_payment_receipts rf ON rf.person_id = ts.person_id
 ";
 
