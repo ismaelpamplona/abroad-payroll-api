@@ -70,7 +70,7 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
         ts.start_date,
         ts.end_date,
         ts.law,
-        ts.law_date,z
+        ts.law_date,
         p.cpf,
         p.bank_id,
         b.name as bank_name,
@@ -85,8 +85,8 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
     JOIN cities ci ON ts.city_id = ci.id
     JOIN countries co ON ci.country_id = co.id
     JOIN roles_classes_indexes rci ON p.role_id = rci.role_id AND p.class_id = rci.class_id
-    JOIN fc_rf_by_roles rcirf ON p.role_id = rf.role_id AND p.class_id = rf.class_id
-    JOIN fc_rf_by_city cirf ON ts.city_id = cirf.id
+    JOIN fc_rf_by_roles rcirf ON p.role_id = rci.role_id AND p.class_id = rci.class_id
+    JOIN fc_rf_by_city cirf ON ts.city_id = cirf.city_id
 ";
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
@@ -163,13 +163,14 @@ pub struct PaidReceiptsRes {
 }
 
 pub const SELECT_PAID_RECEIPTS_QUERY: &str = "
-    SELECT * 
+    SELECT
         pr.rf_receipt_id,
+        pr.payroll_closed_item_id,
         r.person_id,
         r.start_date,
         r.end_date
     FROM paid_rf_receipts pr
-    JOIN rf_payment_receipts r ON pr.rf_receipt_id = r.id;
+    JOIN rf_payment_receipts r ON pr.rf_receipt_id = r.id
 ";
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]

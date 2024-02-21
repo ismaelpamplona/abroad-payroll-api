@@ -1,6 +1,6 @@
 use super::*;
 use crate::response::ErrorDetail;
-use formulas::{calc_af, calc_gets, calc_item};
+use formulas::{calc_af, calc_gets, calc_irfe, calc_item, calc_receipts_to_pay};
 use sqlx::postgres::PgRow;
 use std::marker::Send;
 
@@ -18,10 +18,7 @@ pub async fn calc(
 
     let people_query = format!("{} {};", SELECT_PEOPLE_PAYROLL_QUERY, where_clause);
     let deps_query = format!("{} {};", SELECT_DEPENDENTS_QUERY, where_clause);
-    let receipts_query = format!(
-        "{} {} AND rf.its_paid = FALSE;",
-        SELECT_RF_RECEIPTS_QUERY, where_clause
-    );
+    let receipts_query = format!("{} {};", SELECT_RF_RECEIPTS_QUERY, where_clause);
 
     let payroll_date = &payload.payroll_date;
     let result_people: Vec<PeopleRes> = fetch_all(&people_query, payroll_date, &pool).await;
@@ -108,17 +105,19 @@ pub async fn calc(
             .filter(|item| item.person_id == p.person_id)
             .collect();
 
-        // let irfe = calc_irfe(
-        //     filtered_recps,
-        //     filtered_paid_recps,
-        //     *payroll_date,
-        //     p.rci_fc_irfe,
-        //     p.city_fc_irfe,
-        //     p.person_id,
-        // );
-        // payroll_data.push(irfe.clone());
+        let receipts_to_pay = calc_receipts_to_pay(
+            filtered_recps,
+            filtered_paid_recps,
+            p.rci_fc_irfe,
+            p.city_fc_irfe,
+        );
+        println!("{:?}", receipts_to_pay.clone());
+        for r in receipts_to_pay {
+            let irfe = calc_irfe(r.value, *payroll_date, p.person_id);
+            payroll_data.push(irfe);
+        }
     }
-    dbg!(&payroll_data);
+    // dbg!(&payroll_data);
     todo!()
 }
 

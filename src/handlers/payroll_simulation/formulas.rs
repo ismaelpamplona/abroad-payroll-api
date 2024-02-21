@@ -80,7 +80,7 @@ pub fn calc_af(
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ReceiptToPay {
     pub receipt_id: Uuid,
     pub value: f64,
@@ -89,7 +89,6 @@ pub struct ReceiptToPay {
 pub fn calc_receipts_to_pay(
     receipts: Vec<&ReceiptsRes>,
     paid_receipts: Vec<&PaidReceiptsRes>,
-    payroll_date: NaiveDate,
     rci_fc_irfe: f64,
     city_fc_irfe: f64,
 ) -> Vec<ReceiptToPay> {
@@ -104,19 +103,21 @@ pub fn calc_receipts_to_pay(
         let mut value = 0.0;
         let is_not_paid = !paid_receipt_ids.contains(&r.rf_receipt_id);
         if is_not_paid {
+            let mut percent = 1.0;
             for pr in &paid_receipts {
-                let percent = calculate_overlap_percentage(
+                percent = calculate_overlap_percentage(
                     pr.start_date,
                     pr.end_date,
                     r.start_date,
                     r.end_date,
                 );
-                let valid_months = calc_months_between(r.start_date, r.end_date) * percent;
-                let max_value = valid_months * max_per_month;
-                value = r.value * percent;
-                if value > max_value {
-                    value = max_value;
-                }
+            }
+            // add logic to compare also with the non paid receipts
+            let valid_months = calc_months_between(r.start_date, r.end_date) * percent;
+            let max_value = valid_months * max_per_month;
+            value = r.value * percent;
+            if value > max_value {
+                value = max_value;
             }
             vec_receipts.push(ReceiptToPay {
                 receipt_id: r.rf_receipt_id,
@@ -128,6 +129,14 @@ pub fn calc_receipts_to_pay(
     vec_receipts
 }
 
+pub fn calc_irfe(value: f64, payroll_date: NaiveDate, person_id: Uuid) -> PayrollData {
+    PayrollData {
+        payroll_item: Uuid::parse_str(&var("ID_IRFE").unwrap()).unwrap(),
+        person_id,
+        value,
+        date: payroll_date,
+    }
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -364,7 +373,6 @@ mod tests {
         let result = calc_receipts_to_pay(
             receipts.clone(),
             paid_receipts.clone(),
-            payroll_date,
             rci_fc_irfe,
             city_fc_irfe,
         );
@@ -382,7 +390,6 @@ mod tests {
         let result = calc_receipts_to_pay(
             receipts.clone(),
             paid_receipts.clone(),
-            payroll_date,
             rci_fc_irfe,
             city_fc_irfe,
         );
@@ -404,7 +411,6 @@ mod tests {
         let result = calc_receipts_to_pay(
             receipts.clone(),
             paid_receipts.clone(),
-            payroll_date,
             rci_fc_irfe,
             city_fc_irfe,
         );
@@ -416,6 +422,42 @@ mod tests {
             ReceiptToPay {
                 receipt_id: Uuid::parse_str("5e3adf28-09a2-4e9f-b112-f352c9f804dc").unwrap(),
                 value: 10200.00,
+            },
+        ];
+        assert_eq!(result, expected);
+
+        let paid_receipts = vec![];
+        let rec_a = ReceiptsRes {
+            rf_receipt_id: Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap(),
+            person_id,
+            start_date: NaiveDate::from_ymd_opt(2023, 12, 11).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2024, 1, 10).unwrap(),
+            rate: 1.0,
+            value: 3800.00,
+        };
+        let rec_b = ReceiptsRes {
+            rf_receipt_id: Uuid::parse_str("51c1b668-5d50-443e-984d-7ce7378a0558").unwrap(),
+            person_id,
+            start_date: NaiveDate::from_ymd_opt(2024, 1, 1).unwrap(),
+            end_date: NaiveDate::from_ymd_opt(2024, 1, 31).unwrap(),
+            rate: 1.0,
+            value: 4200.00,
+        };
+        let receipts = vec![&rec_a, &rec_b];
+        let result = calc_receipts_to_pay(
+            receipts.clone(),
+            paid_receipts.clone(),
+            rci_fc_irfe,
+            city_fc_irfe,
+        );
+        let expected = vec![
+            ReceiptToPay {
+                receipt_id: Uuid::parse_str("0575e238-dc3f-49ce-a5ba-413418f030ec").unwrap(),
+                value: 3800.00,
+            },
+            ReceiptToPay {
+                receipt_id: Uuid::parse_str("51c1b668-5d50-443e-984d-7ce7378a0558").unwrap(),
+                value: 4200.00,
             },
         ];
         assert_eq!(result, expected);
