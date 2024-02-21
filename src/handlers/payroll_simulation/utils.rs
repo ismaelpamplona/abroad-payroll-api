@@ -358,6 +358,22 @@ mod tests {
             ((non_overlapped_percentage * 100.0) + 0.5).floor() / 100.0,
             0.68
         ); // Approximately 67.86% non-overlapped, considering leap year
+
+        // partial_overlap_end_test()
+        let already_paid_start = NaiveDate::from_ymd_opt(2023, 12, 1).unwrap();
+        let already_paid_end = NaiveDate::from_ymd_opt(2023, 12, 31).unwrap();
+        let unpaid_start = NaiveDate::from_ymd_opt(2023, 12, 15).unwrap();
+        let unpaid_end = NaiveDate::from_ymd_opt(2024, 1, 31).unwrap();
+        let non_overlapped_percentage = calculate_overlap_percentage(
+            already_paid_start,
+            already_paid_end,
+            unpaid_start,
+            unpaid_end,
+        );
+        assert_eq!(
+            ((non_overlapped_percentage * 100.0) + 0.5).floor() / 100.0,
+            0.65
+        ); // Approximately 67.86% non-overlapped, considering leap year
     }
 
     #[test]

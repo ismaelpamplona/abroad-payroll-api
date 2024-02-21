@@ -1,6 +1,6 @@
 use super::*;
 use crate::response::ErrorDetail;
-use formulas::{calc_af, calc_gets, calc_irfe, calc_item};
+use formulas::{calc_af, calc_gets, calc_item};
 use sqlx::postgres::PgRow;
 use std::marker::Send;
 
@@ -108,15 +108,15 @@ pub async fn calc(
             .filter(|item| item.person_id == p.person_id)
             .collect();
 
-        let irfe = calc_irfe(
-            filtered_recps,
-            filtered_paid_recps,
-            *payroll_date,
-            p.rci_fc_irfe,
-            p.city_fc_irfe,
-            p.person_id,
-        );
-        payroll_data.push(irfe.clone());
+        // let irfe = calc_irfe(
+        //     filtered_recps,
+        //     filtered_paid_recps,
+        //     *payroll_date,
+        //     p.rci_fc_irfe,
+        //     p.city_fc_irfe,
+        //     p.person_id,
+        // );
+        // payroll_data.push(irfe.clone());
     }
     dbg!(&payroll_data);
     todo!()
