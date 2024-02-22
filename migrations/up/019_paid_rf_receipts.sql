@@ -8,7 +8,8 @@ CREATE TABLE public.paid_rf_receipts (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
     rf_receipt_id uuid NOT NULL UNIQUE,
     payroll_closed_item_id uuid NOT NULL UNIQUE,
-    created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT paid_rf_receipts_pkey PRIMARY KEY (id)
 );
 
 -- public.paid_rf_receipts foreign keys

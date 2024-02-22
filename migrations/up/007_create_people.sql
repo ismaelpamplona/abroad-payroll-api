@@ -13,6 +13,8 @@ CREATE TABLE public.people (
     bank_id uuid NOT NULL,
     bank_agency varchar(20) NOT NULL,
     bank_agency_account varchar(20) NOT NULL,
+    has_retention_bonus BOOLEAN NOT NULL DEFAULT false,
+    payroll_brl_pss float8 NOT NULL,
     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamp NULL,
     e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),

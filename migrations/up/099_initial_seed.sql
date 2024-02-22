@@ -53,11 +53,11 @@ VALUES
 
 --
 
-INSERT INTO people (id, name, role_id, class_id, cpf, bank_id, bank_agency, bank_agency_account)
+INSERT INTO people (id, name, role_id, class_id, cpf, bank_id, bank_agency, bank_agency_account, has_retention_bonus, payroll_brl_pss)
 VALUES
-    ('a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 'Ana Silva', '48b81286-a5aa-493e-99a7-222d464ecf2e', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', '01234567890', '12c8245d-1c63-4e03-8f2c-6c5979e6a3a4', '0123', '0123456-1'),
-    ('6628b9b5-cf0f-492d-834b-220c7aeb2b8c', 'Carlos Santos', 'b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', '09876543210', '8e3639d1-0e04-4f98-9d6d-09a1b04f5369', '001', '9999-0'),
-    ('03a46f8a-028d-4b41-9d07-7c01612ecfd3', 'Camila Oliveira', '48b81286-a5aa-493e-99a7-222d464ecf2e', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', '11111322223', '8e3639d1-0e04-4f98-9d6d-09a1b04f5369', '999', '11111-9');
+    ('a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 'Ana Silva', '48b81286-a5aa-493e-99a7-222d464ecf2e', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', '01234567890', '12c8245d-1c63-4e03-8f2c-6c5979e6a3a4', '0123', '0123456-1', TRUE, 3642.55),
+    ('6628b9b5-cf0f-492d-834b-220c7aeb2b8c', 'Carlos Santos', 'b3f82163-fca4-45c5-8e1c-fc7b2f6e417d', 'c1d1f5a2-3f05-4a49-8b47-5d2b0db10a44', '09876543210', '8e3639d1-0e04-4f98-9d6d-09a1b04f5369', '001', '9999-0', FALSE, 877.22),
+    ('03a46f8a-028d-4b41-9d07-7c01612ecfd3', 'Camila Oliveira', '48b81286-a5aa-493e-99a7-222d464ecf2e', '2c13d59c-fa5e-44a1-9abf-e92ac39c01b9', '11111322223', '8e3639d1-0e04-4f98-9d6d-09a1b04f5369', '999', '11111-9', FALSE, 877.22);
 
 --
 
@@ -141,7 +141,8 @@ FROM (VALUES
     (CAST('dc7dc82c-440d-43a6-b663-e127af2a6bce' AS uuid), '1990'),
     (CAST('4ff78775-18ec-4044-8349-d586804e0d0f' AS uuid), '3990'),
     (CAST('0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff' AS uuid), '1984'),
-    (CAST('d89dec6c-4389-4221-b7d7-95912bf4e864' AS uuid), '3057')
+    (CAST('d89dec6c-4389-4221-b7d7-95912bf4e864' AS uuid), '3057'),
+    (CAST('2c98d9cd-9da3-412a-bf88-f8950aa67c1e' as uuid), '2403')
 ) AS v(id, code)
 WHERE p.id = v.id;
 
@@ -168,6 +169,13 @@ VALUES
     ('53d69b91-26a5-456f-b131-82bed76b121f', '6f7d87d7-1660-4ab6-a7f5-76a426b1e18a', '3040d3ca-b2fd-4a28-bb68-f618b5a13cd8'),
     ('7a2fd36f-5342-44e8-be40-147bd2fdd094', 'e84c0c4a-d041-4d7e-aa88-7125a7b9c49c', 'f6dc5763-3a9d-4a58-8379-81d97ec0d656'),
     ('aec7cbed-cca9-429c-9afc-f31a9f6211fe', '3f99e7bb-9a4f-4dbb-88cd-3e71f415b1e9', 'c0c2def0-5a4c-4c92-a432-acba231e0729');
+
+-- 
+
+INSERT INTO public.manual_entries(id, person_id, payroll_item, value, start_date, end_date)
+VALUES
+    ('79d4e242-6d2a-4ef0-bae5-88e4f67f87c8', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '5edb4f6c-e8ec-4f40-8e45-7fc28c460abf', 999.99, '2024-01-01', '2026-12-31');
+
 
 
 
