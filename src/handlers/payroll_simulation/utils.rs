@@ -85,7 +85,7 @@ pub fn get_years_from_date(start_date: NaiveDate, years: i32) -> NaiveDate {
     .unwrap()
 }
 
-pub fn calculate_overlap_percentage(
+pub fn calc_overlap_percentage(
     start1: NaiveDate,
     end1: NaiveDate,
     start2: NaiveDate,
@@ -294,13 +294,13 @@ mod tests {
     }
 
     #[test]
-    fn test_calculate_overlap_percentage() {
+    fn test_calc_overlap_percentage() {
         // no_overlap_test()
         let already_paid_start = NaiveDate::from_ymd_opt(2024, 3, 1).unwrap();
         let already_paid_end = NaiveDate::from_ymd_opt(2024, 3, 31).unwrap();
         let unpaid_start = NaiveDate::from_ymd_opt(2024, 4, 1).unwrap();
         let unpaid_end = NaiveDate::from_ymd_opt(2024, 4, 30).unwrap();
-        let non_overlapped_percentage = calculate_overlap_percentage(
+        let non_overlapped_percentage = calc_overlap_percentage(
             already_paid_start,
             already_paid_end,
             unpaid_start,
@@ -316,7 +316,7 @@ mod tests {
         let already_paid_end = NaiveDate::from_ymd_opt(2024, 2, 29).unwrap();
         let unpaid_start = already_paid_start;
         let unpaid_end = already_paid_end;
-        let non_overlapped_percentage = calculate_overlap_percentage(
+        let non_overlapped_percentage = calc_overlap_percentage(
             already_paid_start,
             already_paid_end,
             unpaid_start,
@@ -332,7 +332,7 @@ mod tests {
         let already_paid_end = NaiveDate::from_ymd_opt(2024, 2, 5).unwrap();
         let unpaid_start = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
         let unpaid_end = NaiveDate::from_ymd_opt(2024, 2, 29).unwrap();
-        let non_overlapped_percentage = calculate_overlap_percentage(
+        let non_overlapped_percentage = calc_overlap_percentage(
             already_paid_start,
             already_paid_end,
             unpaid_start,
@@ -348,7 +348,7 @@ mod tests {
         let already_paid_end = NaiveDate::from_ymd_opt(2024, 3, 10).unwrap();
         let unpaid_start = NaiveDate::from_ymd_opt(2024, 2, 1).unwrap();
         let unpaid_end = NaiveDate::from_ymd_opt(2024, 2, 28).unwrap();
-        let non_overlapped_percentage = calculate_overlap_percentage(
+        let non_overlapped_percentage = calc_overlap_percentage(
             already_paid_start,
             already_paid_end,
             unpaid_start,
@@ -364,7 +364,7 @@ mod tests {
         let already_paid_end = NaiveDate::from_ymd_opt(2023, 12, 31).unwrap();
         let unpaid_start = NaiveDate::from_ymd_opt(2023, 12, 15).unwrap();
         let unpaid_end = NaiveDate::from_ymd_opt(2024, 1, 31).unwrap();
-        let non_overlapped_percentage = calculate_overlap_percentage(
+        let non_overlapped_percentage = calc_overlap_percentage(
             already_paid_start,
             already_paid_end,
             unpaid_start,

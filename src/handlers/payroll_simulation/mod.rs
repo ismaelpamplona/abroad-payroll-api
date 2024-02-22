@@ -7,7 +7,11 @@ use std::env::var;
 use uuid::Uuid;
 
 pub mod calc;
-pub mod formulas;
+pub mod calc_af;
+pub mod calc_gets;
+pub mod calc_irfe;
+pub mod calc_manual_entry;
+pub mod calc_rb_or_irex;
 pub mod utils;
 
 pub use calc::calc;
@@ -15,6 +19,7 @@ pub use calc::calc;
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct CalcPayload {
     pub payroll_date: NaiveDate,
+    pub rate: f64,
 }
 
 #[derive(Deserialize, Serialize, FromRow, Debug)]
@@ -46,6 +51,8 @@ pub struct PeopleRes {
     bank_number: String,
     bank_agency: String,
     bank_agency_account: String,
+    has_retention_bonus: bool,
+    payroll_brl_pss: f64,
 }
 
 pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
@@ -76,7 +83,9 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
         b.name as bank_name,
         b.number as bank_number,
         p.bank_agency,
-        p.bank_agency_account
+        p.bank_agency_account,
+        p.has_retention_bonus,
+        p.payroll_brl_pss
     FROM time_served_abroad ts
     JOIN people p ON ts.person_id = p.id
     JOIN roles r ON p.role_id = r.id
@@ -174,9 +183,35 @@ pub const SELECT_PAID_RECEIPTS_QUERY: &str = "
 ";
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct ManualEntriesRes {
+    person_id: Uuid,
+    payroll_item: Uuid,
+    value: f64,
+    start_date: NaiveDate,
+    end_date: NaiveDate,
+}
+
+pub const SELECT_MANUAL_ENTRIES_QUERY: &str = "
+    SELECT * FROM manual_entries me
+";
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
 pub struct PayrollData {
     payroll_item: Uuid,
     person_id: Uuid,
     value: f64,
     date: NaiveDate,
 }
+
+// CREATE TABLE public.manual_entries (
+//     id uuid NOT NULL DEFAULT uuid_generate_v4(),
+//     person_id uuid NULL,
+//     payroll_item uuid NULL,
+//     value float8 NOT NULL,
+//     start_date date NOT NULL,
+// 	end_date date NOT NULL,
+//     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+// 	updated_at timestamp NULL,
+// 	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
+// 	CONSTRAINT manual_entries_pkey PRIMARY KEY (id)
+// );

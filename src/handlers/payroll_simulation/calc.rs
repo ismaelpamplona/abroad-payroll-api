@@ -1,6 +1,10 @@
 use super::*;
 use crate::response::ErrorDetail;
-use formulas::{calc_af, calc_gets, calc_irfe, calc_item, calc_receipts_to_pay};
+use calc_af::calc_af;
+use calc_gets::calc_gets;
+use calc_irfe::{calc_irfe, calc_receipts_to_pay};
+use calc_manual_entry::calc_manual_entry_to_pay;
+use calc_rb_or_irex::calc_item;
 use sqlx::postgres::PgRow;
 use std::marker::Send;
 
@@ -11,19 +15,32 @@ pub async fn calc(
     let where_clause = format!(
         "WHERE 
             (ts.end_date IS NULL
-            OR (ts.end_date >= DATE_TRUNC('month', {})
-                AND ts.end_date <= DATE_TRUNC('month', {}) + INTERVAL '1 month - 1 day'))",
-        "CURRENT_DATE", "CURRENT_DATE"
+            OR (ts.end_date >= DATE_TRUNC('month', CAST('{}' AS TIMESTAMP))
+                AND ts.end_date <= DATE_TRUNC('month', CAST('{}' AS TIMESTAMP)) + INTERVAL '1 month - 1 day'))",
+        payload.payroll_date, payload.payroll_date
     );
 
-    let people_query = format!("{} {};", SELECT_PEOPLE_PAYROLL_QUERY, where_clause);
-    let deps_query = format!("{} {};", SELECT_DEPENDENTS_QUERY, where_clause);
-    let receipts_query = format!("{} {};", SELECT_RF_RECEIPTS_QUERY, where_clause);
-
     let payroll_date = &payload.payroll_date;
+
+    let people_query = format!("{} {};", SELECT_PEOPLE_PAYROLL_QUERY, where_clause);
     let result_people: Vec<PeopleRes> = fetch_all(&people_query, payroll_date, &pool).await;
+
+    let deps_query = format!("{} {};", SELECT_DEPENDENTS_QUERY, where_clause);
     let result_dependents: Vec<DependentsRes> = fetch_all(&deps_query, payroll_date, &pool).await;
+
+    let receipts_query = format!("{} {};", SELECT_RF_RECEIPTS_QUERY, where_clause);
     let result_receipts: Vec<ReceiptsRes> = fetch_all(&receipts_query, payroll_date, &pool).await;
+
+    let paid_reipts_query = format!("{};", SELECT_PAID_RECEIPTS_QUERY);
+    let result_paid_recps: Vec<PaidReceiptsRes> =
+        fetch_all(&paid_reipts_query, payroll_date, &pool).await;
+
+    let manual_entries_query = format!(
+        "{} WHERE me.end_date >= DATE_TRUNC('month', CAST('{}' AS TIMESTAMP));",
+        SELECT_MANUAL_ENTRIES_QUERY, payload.payroll_date
+    );
+    let result_manual_entries: Vec<ManualEntriesRes> =
+        fetch_all(&manual_entries_query, payroll_date, &pool).await;
 
     if result_people.is_empty() || result_dependents.is_empty() || result_receipts.is_empty() {
         eprintln!("Error to fetch data!");
@@ -96,10 +113,6 @@ pub async fn calc(
             .filter(|item| item.person_id == p.person_id)
             .collect();
 
-        let paid_reipts_query = format!("{};", SELECT_PAID_RECEIPTS_QUERY);
-        let result_paid_recps: Vec<PaidReceiptsRes> =
-            fetch_all(&paid_reipts_query, payroll_date, &pool).await;
-
         let filtered_paid_recps: Vec<&PaidReceiptsRes> = result_paid_recps
             .iter()
             .filter(|item| item.person_id == p.person_id)
@@ -111,13 +124,43 @@ pub async fn calc(
             p.rci_fc_irfe,
             p.city_fc_irfe,
         );
-        println!("{:?}", receipts_to_pay.clone());
         for r in receipts_to_pay {
             let irfe = calc_irfe(r.value, *payroll_date, p.person_id);
             payroll_data.push(irfe);
         }
+
+        // Manual Entries
+        let filtered_manual_entries: Vec<&ManualEntriesRes> = result_manual_entries
+            .iter()
+            .filter(|item| item.person_id == p.person_id)
+            .collect();
+        let manual_entries_to_pay =
+            calc_manual_entry_to_pay(filtered_manual_entries, *payroll_date);
+        for e in manual_entries_to_pay {
+            payroll_data.push(e);
+        }
+
+        // PSS
+        let pss = PayrollData {
+            payroll_item: Uuid::parse_str(&var("ID_PSS").unwrap()).unwrap(),
+            person_id: p.person_id,
+            value: p.payroll_brl_pss / payload.rate,
+            date: *payroll_date,
+        };
+        payroll_data.push(pss);
+
+        // AP - Abono Permanência
+        if p.has_retention_bonus {
+            let ap = PayrollData {
+                payroll_item: Uuid::parse_str(&var("ID_AP").unwrap()).unwrap(),
+                person_id: p.person_id,
+                value: p.payroll_brl_pss / payload.rate,
+                date: *payroll_date,
+            };
+            payroll_data.push(ap);
+        }
     }
-    // dbg!(&payroll_data);
+    dbg!(&payroll_data);
     todo!()
 }
 
