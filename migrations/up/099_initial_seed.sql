@@ -142,7 +142,13 @@ FROM (VALUES
     (CAST('4ff78775-18ec-4044-8349-d586804e0d0f' AS uuid), '3990'),
     (CAST('0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff' AS uuid), '1984'),
     (CAST('d89dec6c-4389-4221-b7d7-95912bf4e864' AS uuid), '3057'),
-    (CAST('2c98d9cd-9da3-412a-bf88-f8950aa67c1e' as uuid), '2403')
+    (CAST('2c98d9cd-9da3-412a-bf88-f8950aa67c1e' as uuid), '2403'),
+    (CAST('9e2960e7-8b66-4040-94d0-0e123068d690' AS uuid), '2405'),
+    (CAST('fb41cf1e-ea61-4f5b-95e7-43f818c388ec' AS uuid), '2430'),
+    (CAST('00e59be5-c2cb-495c-92a2-bfc0adf718d9' AS uuid), '2482'),
+    (CAST('dd9a0caa-18df-4d2a-9847-dfcfc82c228b' AS uuid), '2560'),
+    (CAST('3c2fab19-14c4-49f9-912f-c6c67e0bc7a3' AS uuid), '2521'),
+    (CAST('ab828ac1-c188-484c-9379-59c9f9d9b50f' AS uuid), '2522')
 ) AS v(id, code)
 WHERE p.id = v.id;
 
