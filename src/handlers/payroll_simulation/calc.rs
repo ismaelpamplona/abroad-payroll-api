@@ -6,7 +6,7 @@ use calc_irfe::{calc_irfe, calc_receipts_to_pay};
 use calc_manual_entry::calc_manual_entry_to_pay;
 use calc_rb_or_irex::calc_item;
 use sqlx::postgres::PgRow;
-use std::marker::Send;
+use std::{collections::HashMap, marker::Send};
 
 pub async fn calc(
     Extension(pool): Extension<PgPool>,
@@ -42,6 +42,17 @@ pub async fn calc(
     let result_manual_entries: Vec<ManualEntriesRes> =
         fetch_all(&manual_entries_query, payroll_date, &pool).await;
 
+    let payroll_items_query = format!("{};", SELECT_PAYROLL_ITEMS_QUERY);
+    let result_payroll_items: Vec<PayrollItemsResponse> =
+        fetch_all(&payroll_items_query, payroll_date, &pool).await;
+
+    let mut map_item: HashMap<Uuid, (bool, TransactionType)> = HashMap::new();
+    for item in result_payroll_items {
+        map_item
+            .entry(item.id)
+            .or_insert((item.consider_for_ir, item.transaction_type));
+    }
+
     if result_people.is_empty() || result_dependents.is_empty() || result_receipts.is_empty() {
         eprintln!("Error to fetch data!");
         let error = ApiResponse::<()>::error(ErrorDetail {
@@ -56,6 +67,7 @@ pub async fn calc(
     let mut payroll_data: Vec<PayrollData> = vec![];
     for p in result_people {
         // RB - Retribuição Básica
+        let mut person_payroll_data: Vec<PayrollData> = vec![];
         let rb = calc_item(
             p.rci_fc_rb,
             p.city_fc_rb,
@@ -65,7 +77,7 @@ pub async fn calc(
             Uuid::parse_str(&var("ID_RB").unwrap()).unwrap(),
             p.person_id,
         );
-        payroll_data.push(rb.clone());
+        person_payroll_data.push(rb.clone());
 
         // IREX - Indenização de Representação no Exterior
         let irex = calc_item(
@@ -77,7 +89,7 @@ pub async fn calc(
             Uuid::parse_str(&var("ID_IREX").unwrap()).unwrap(),
             p.person_id,
         );
-        payroll_data.push(irex.clone());
+        person_payroll_data.push(irex.clone());
 
         // GETS - Gratificação no Exterior por tempo de serviço
         let time_served_abroad_query = format!(
@@ -97,7 +109,7 @@ pub async fn calc(
         }
 
         let gets = calc_gets(result_tsa, *payroll_date, rb.value, p.person_id);
-        payroll_data.push(gets.clone());
+        person_payroll_data.push(gets.clone());
 
         // AF - Auxílio-Familiar
         let filtered_deps: Vec<&DependentsRes> = result_dependents
@@ -105,7 +117,7 @@ pub async fn calc(
             .filter(|item| item.person_id == p.person_id)
             .collect();
         let af = calc_af(filtered_deps, *payroll_date, irex.value, p.person_id);
-        payroll_data.push(af.clone());
+        person_payroll_data.push(af.clone());
 
         // IRFE -  Auxílio-Moradia no Exterior
         let filtered_recps: Vec<&ReceiptsRes> = result_receipts
@@ -126,7 +138,7 @@ pub async fn calc(
         );
         for r in receipts_to_pay {
             let irfe = calc_irfe(r.value, *payroll_date, p.person_id);
-            payroll_data.push(irfe);
+            person_payroll_data.push(irfe);
         }
 
         // Manual Entries
@@ -137,7 +149,7 @@ pub async fn calc(
         let manual_entries_to_pay =
             calc_manual_entry_to_pay(filtered_manual_entries, *payroll_date);
         for e in manual_entries_to_pay {
-            payroll_data.push(e);
+            person_payroll_data.push(e);
         }
 
         // PSS
@@ -147,7 +159,7 @@ pub async fn calc(
             value: p.payroll_brl_pss / payload.rate,
             date: *payroll_date,
         };
-        payroll_data.push(pss);
+        person_payroll_data.push(pss);
 
         // AP - Abono Permanência
         if p.has_retention_bonus {
@@ -157,9 +169,31 @@ pub async fn calc(
                 value: p.payroll_brl_pss / payload.rate,
                 date: *payroll_date,
             };
-            payroll_data.push(ap);
+            person_payroll_data.push(ap);
         }
+
+        // AT - Abate teto
+
+        // IR - Imposto de Renda Retido na Fonte
+        for item in &person_payroll_data {
+            let (consider_for_ir, transaction_type) = map_item.get(&item.payroll_item).unwrap();
+            let mut gross_value = 0.0;
+            if *consider_for_ir && matches!(transaction_type, TransactionType::Credit) {
+                gross_value += item.value;
+            }
+            let is_at = item.payroll_item == Uuid::parse_str(&var("ID_AT").unwrap()).unwrap();
+            if is_at {
+                gross_value -= item.value;
+            }
+            let mut taxable_value = gross_value * 0.25;
+            if *consider_for_ir && matches!(transaction_type, TransactionType::Credit) && !is_at {
+                taxable_value -= item.value;
+            }
+        }
+
+        payroll_data.extend(person_payroll_data);
     }
+
     dbg!(&payroll_data);
     todo!()
 }

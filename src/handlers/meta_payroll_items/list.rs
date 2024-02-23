@@ -32,6 +32,12 @@ pub async fn list(
             val: filters.types.as_ref(),
             conj: "OR",
         },
+        Filter {
+            name: "m.consider_for_ir",
+            op: Operator::Equal,
+            val: filters.ir.as_ref(),
+            conj: "OR",
+        },
     ];
 
     let where_clause = generate_filter_clauses(filters);

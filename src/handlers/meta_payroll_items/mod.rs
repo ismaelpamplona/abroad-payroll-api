@@ -16,7 +16,7 @@ pub use list::list;
 pub use save::save;
 pub use update::update;
 
-#[derive(Debug, sqlx::Type, Serialize, Deserialize)]
+#[derive(Debug, sqlx::Type, Serialize, Deserialize, PartialEq)]
 #[sqlx(type_name = "transaction_type", rename_all = "snake_case")]
 pub enum TransactionType {
     Credit,
@@ -32,12 +32,13 @@ pub struct PayrollItemsPayload {
 
 #[derive(Serialize, FromRow, Debug)]
 pub struct PayrollItemsResponse {
-    id: Uuid,
-    code: String,
-    short_name: String,
-    description: String,
-    transaction_type: TransactionType,
-    e_tag: String,
+    pub id: Uuid,
+    pub code: String,
+    pub short_name: String,
+    pub description: String,
+    pub transaction_type: TransactionType,
+    pub consider_for_ir: bool,
+    pub e_tag: String,
 }
 
 #[derive(Deserialize)]
@@ -46,27 +47,8 @@ pub struct PayrollItemsFilter {
     names: Option<String>,
     descs: Option<String>,
     types: Option<String>,
+    ir: Option<String>,
 }
 
 pub const SELECT_QUERY: &str = "
-    SELECT
-        m.id,
-        m.code,
-        m.short_name,
-        m.description,
-        m.transaction_type,
-        m.e_tag,
-
-    FROM meta_payroll_items m";
-
-// id uuid NOT NULL DEFAULT uuid_generate_v4(),
-// code varchar(30) NULL,
-// short_name varchar(10) NOT NULL,
-// description varchar(100) NOT NULL,
-// "transaction_type" public."transaction_type" NOT NULL,
-// created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-// updated_at timestamp NULL,
-// e_tag uuid NOT NULL DEFAULT uuid_generate_v4(),
-// CONSTRAINT meta_payroll_items_pkey PRIMARY KEY (id),
-// CONSTRAINT unique_code UNIQUE (code),
-// CONSTRAINT unique_short_name UNIQUE (short_name)
+    SELECT * FROM meta_payroll_items m";

@@ -1,4 +1,9 @@
-use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
+use crate::{
+    handlers::meta_payroll_items::{
+        PayrollItemsResponse, TransactionType, SELECT_QUERY as SELECT_PAYROLL_ITEMS_QUERY,
+    },
+    response::ApiResponse,
+};
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
@@ -10,6 +15,7 @@ pub mod calc;
 pub mod calc_af;
 pub mod calc_gets;
 pub mod calc_irfe;
+pub mod calc_irpf;
 pub mod calc_manual_entry;
 pub mod calc_rb_or_irex;
 pub mod utils;
@@ -202,16 +208,3 @@ pub struct PayrollData {
     value: f64,
     date: NaiveDate,
 }
-
-// CREATE TABLE public.manual_entries (
-//     id uuid NOT NULL DEFAULT uuid_generate_v4(),
-//     person_id uuid NULL,
-//     payroll_item uuid NULL,
-//     value float8 NOT NULL,
-//     start_date date NOT NULL,
-// 	end_date date NOT NULL,
-//     created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-// 	updated_at timestamp NULL,
-// 	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
-// 	CONSTRAINT manual_entries_pkey PRIMARY KEY (id)
-// );
