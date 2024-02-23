@@ -30,19 +30,19 @@ services:
     volumes:
       - ./:/app
 
-  metabase:
-    image: metabase/metabase:latest
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-    environment:
-      MB_DB_TYPE: postgres
-      MB_DB_DBNAME: metabase
-      MB_DB_PORT: 5432
-      MB_DB_USER: postgres
-      MB_DB_PASS: 123456
-      MB_DB_HOST: postgres
+  # metabase:
+  #   image: metabase/metabase:latest
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     MB_DB_TYPE: postgres
+  #     MB_DB_DBNAME: metabase
+  #     MB_DB_PORT: 5432
+  #     MB_DB_USER: postgres
+  #     MB_DB_PASS: 123456
+  #     MB_DB_HOST: postgres
 
 volumes:
   abroad-payroll-api:
