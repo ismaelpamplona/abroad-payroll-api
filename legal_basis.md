@@ -140,4 +140,26 @@ $$Ac = (2 \cdot 7.209,80) + (2 \cdot 920,40) + 6.136,00 = 22.395,20$$
 
   - Cotação do dólar a ser considerada é a do último dia útil da primeira quinzena do mês anterior ao da folha.
 
-  # Consiganações e Deduções
+# Consiganações e Deduções
+
+## 1. PSS - Plano de Seguridade Social:
+
+- Forma de cálculo:
+  - Valor do PSS na folha nacional: $PssBrl$
+  - Valor da cotação da folha: $C$
+    $$ \frac {PssBrl}{C} = Pss$$
+
+## 2. IRPF - Plano de Seguridade Social:
+
+- Forma de cálculo:
+  - Soma da remuneração: $R$
+    - Retribuição básica: $Rb$
+    - Indenização de representação no exterior: $Irex$
+    - Gratificação no exterior por tempo de serviço: $Gets$
+    - Auxílio familiar: $Af$
+    - Abono permanência: $Ap$
+    - Diferença de retribuição básica: $Drb$
+    - Diferença Irex: $Direx$
+    - Despesa com exercício anterior (tributável): $DEAT$
+    - Abate teto: $At$
+      $$R = (Rb + Irex + Gets + Af + Ap + Drb + Direx + Deat) - At$$
