@@ -182,6 +182,54 @@ INSERT INTO public.manual_entries(id, person_id, payroll_item, value, start_date
 VALUES
     ('79d4e242-6d2a-4ef0-bae5-88e4f67f87c8', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', '5edb4f6c-e8ec-4f40-8e45-7fc28c460abf', 999.99, '2024-01-01', '2026-12-31');
 
+--
+
+INSERT INTO public.progressive_income_tax_table(id, from_value, to_value, tax_rate, parcel_deductible_value, law, law_date, start_from)
+VALUES
+    ('f639f793-c843-4f3b-8f34-e26d9a40736f', 0.0, 2259.20, 0.0, 0.0, 'MP 1.206/2024', '2024-2-6', '2024-2-1'),
+    ('6f46f0bd-51ca-4ca4-ab99-3a2e555140a7', 2259.21, 2826.65, 7.5, 169.44, 'MP 1.206/2024', '2024-2-6', '2024-2-1'),
+    ('bd0fc67d-ba6f-4b1e-bac5-63175ad7bab7', 2826.66, 23751.05, 15.0, 381.44, 'MP 1.206/2024', '2024-2-6', '2024-2-1'),
+    ('cd8b9c40-7f0e-4408-9ae3-d50d72e1e455', 23751.05, 4664.68, 22.5, 662.77, 'MP 1.206/2024', '2024-2-6', '2024-2-1'),
+    ('5afc05a3-304b-4b0e-b91a-914e6d7a985f', 4664.68, 'infinity'::float8, 27.5, 896.00, 'MP 1.206/2024', '2024-2-6', '2024-2-1'),
+    ('ea6fd7b0-2c04-4a6d-84ab-037438905b5c', 0.0, 2112.0, 0.0, 0.0, 'MP 1.206/2024', '2024-2-6', '2023-5-1'),
+    ('e97db80d-ca4b-45f2-9ee8-e97aea6c8365', 2112.1,  2826.65, 7.5, 158.40, 'MP 1.206/2024', '2024-2-6', '2023-5-1'),
+    ('298a1fbe-6d4c-47a5-9ca0-617926e21f9f', 2826.66, 3751.05, 15.0, 370.40, 'MP 1.206/2024', '2024-2-6', '2023-5-1'),
+    ('6fc88c3d-7d45-4ba8-927a-686e4fc8e578', 3751.06, 4664.68, 22.5, 651.73, 'MP 1.206/2024', '2024-2-6', '2023-5-1'),
+    ('62cd86a4-40d2-44e4-a61c-2c4f92360650', 4664.68, 'infinity'::float8, 27.5, 884.96, 'MP 1.206/2024', '2024-2-6', '2023-5-1');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CREATE TABLE public.progressive_income_tax_table (
+    id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    from_date date NOT NULL,
+	to_value date NOT NULL,
+    tax_value float8 NOT NULL,
+    parcel_deductible_value float8 NOT NULL,
+    law varchar(200) NOT NULL,
+	law_date date NOT NULL,
+    created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at timestamp NULL,
+	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
+	CONSTRAINT progressive_income_tax_table_pkey PRIMARY KEY (id)
+);
+
+
+
+
 
 
 
