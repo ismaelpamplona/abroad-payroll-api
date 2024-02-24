@@ -201,6 +201,15 @@ pub const SELECT_MANUAL_ENTRIES_QUERY: &str = "
     SELECT * FROM manual_entries me
 ";
 
+pub const SELECT_PROGRESSIVE_INCOME_TAX_TABLE: &str = "
+    SELECT *
+    FROM public.progressive_income_tax_table
+    WHERE start_from = (
+        SELECT MAX(start_from)
+        FROM public.progressive_income_tax_table
+    )
+";
+
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
 pub struct PayrollData {
     payroll_item: Uuid,
