@@ -2,12 +2,12 @@
 
 Legislação aplicada para cálculo da retribuição e direitos do pessoal civil da União no exterior.
 
-- [Lei 5.809, de 10 de outubro de 1972](https://www.planalto.gov.br/ccivil_03/leis/L5809.htm).
-- [Decreto 71.733, de 18 de janeiro de 1973](https://www.planalto.gov.br/ccivil_03/decreto/D71733compilado.htm).
-- [Lei nº 8.112, de 11 de dezembro de 1990](https://www.planalto.gov.br/ccivil_03/LEIS/L8112cons.htm)
-- [Decreto 9.435, de 2 de julho de 2018]().
-- [Portaria MRE 402, de 22 de julho de 2022 - Guia de Administração dos Postos (GAP 2022)](https://www.gov.br/mre/pt-br/arquivos/documentos/administrativo/GAP2022AjustadosPortarias423e425de2022.pdf).
-- [Portaria MRE 494, de 20 de novembro de 2023](https://www.in.gov.br/web/dou/-/portaria-mre-n-494-de-20-de-novembro-de-2023-524552719).
+- [Lei 5.809, de 10 de outubro de 1972](https://www.planalto.gov.br/ccivil_03/leis/L5809.htm): Dispõe sobre a retribuição e direitos do pessoal civil e militar em serviço da União no exterior, e dá outras providências.
+- [Decreto 71.733, de 18 de janeiro de 1973](https://www.planalto.gov.br/ccivil_03/decreto/D71733compilado.htm): Regulamenta a Lei nº 5.809, de 10 de outubro de 1972, que dispõe sobre a retribuição e direitos do pessoal civil e militar em serviço da União no exterior.
+- [Lei nº 8.112, de 11 de dezembro de 1990](https://www.planalto.gov.br/ccivil_03/LEIS/L8112cons.htm): Dispõe sobre o regime jurídico dos servidores públicos civis da União, das autarquias e das fundações públicas federais.
+- [Portaria MRE 402, de 22 de julho de 2022 - Guia de Administração dos Postos (GAP 2022)](https://www.gov.br/mre/pt-br/arquivos/documentos/administrativo/GAP2022AjustadosPortarias423e425de2022.pdf): Aprova o novo Guia de Administração dos Postos(GAP 2022) do Ministério das Relações Exteriores..
+- [PORTARIA Nº 424, DE 9 DE DEZEMBRO DE 2022](https://www.in.gov.br/web/dou/-/portaria-n-424-de-9-de-dezembro-de-2022-449711629): Fixa a taxa de câmbio aplicada à Retribuição no Exterior para fins de verificação do limite remuneratório constitucional.
+- [Portaria MRE 494, de 20 de novembro de 2023](https://www.in.gov.br/web/dou/-/portaria-mre-n-494-de-20-de-novembro-de-2023-524552719): Altera o anexo 37 do Guia de Administração dos Postos, publicado pela Portaria nº 402, de 22/07/2022..
 - [Portaria MRE 497, de 13 de dezembro de 2023]().
 - [Despacho 116/2013/SFT/CGU/AGU]()
 - [Parecer 147/2011/DECOR/CGU/AGU]()
@@ -149,7 +149,7 @@ $$Ac = (2 \cdot 7.209,80) + (2 \cdot 920,40) + 6.136,00 = 22.395,20$$
   - Valor da cotação da folha: $C$
     $$ \frac {PssBrl}{C} = Pss$$
 
-## 2. IRPF - Plano de Seguridade Social:
+## 2. IRPF - Imposto de Renda de Pessoa Física
 
 - Forma de cálculo:
   - Soma da remuneração: $R$
