@@ -201,12 +201,57 @@ pub const SELECT_MANUAL_ENTRIES_QUERY: &str = "
     SELECT * FROM manual_entries me
 ";
 
-pub const SELECT_PROGRESSIVE_INCOME_TAX_TABLE: &str = "
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct IncomeTaxesRes {
+    from_value: f64,
+    to_value: f64,
+    tax_rate: f64,
+    parcel_deductible_value: f64,
+    law: String,
+    start_from: NaiveDate,
+}
+
+pub const SELECT_INCOME_TAX_TABLE: &str = "
     SELECT *
     FROM public.progressive_income_tax_table
     WHERE start_from = (
         SELECT MAX(start_from)
         FROM public.progressive_income_tax_table
+    )
+";
+
+pub const WHERE_LIMIT_QUERY: &str = "
+    WHERE law_date = (
+        SELECT MAX(law_date)
+        FROM public.cf_limit_exchange_rate
+    )
+";
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct LimitRateRes {
+    value: f64,
+}
+
+pub const SELECT_LIMIT_RATE_QUERY: &str = "
+    SELECT *
+    FROM cf_limit_exchange_rate
+    WHERE law_date = (
+        SELECT MAX(law_date)
+        FROM public.cf_limit_exchange_rate
+    )
+";
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct LimitValueRes {
+    value: f64,
+}
+
+pub const SELECT_CF_LIMIT_VALUE_QUERY: &str = "
+    SELECT * 
+    FROM cf_limit_value
+    WHERE law_date = (
+        SELECT MAX(law_date)
+        FROM public.cf_limit_value
     )
 ";
 

@@ -45,13 +45,24 @@ pub async fn calc(
     let payroll_items_query = format!("{};", SELECT_PAYROLL_ITEMS_QUERY);
     let result_payroll_items: Vec<PayrollItemsResponse> =
         fetch_all(&payroll_items_query, payroll_date, &pool).await;
-
     let mut map_item: HashMap<Uuid, (bool, TransactionType)> = HashMap::new();
     for item in result_payroll_items {
         map_item
             .entry(item.id)
             .or_insert((item.consider_for_ir, item.transaction_type));
     }
+
+    let income_taxes_query = format!("{};", SELECT_INCOME_TAX_TABLE);
+    let result_income_taxes: Vec<IncomeTaxesRes> =
+        fetch_all(&income_taxes_query, payroll_date, &pool).await;
+
+    let cf_limit_exchange_rate_query = format!("{};", SELECT_LIMIT_RATE_QUERY);
+    let result_cf_limit_rate: Vec<LimitRateRes> =
+        fetch_all(&cf_limit_exchange_rate_query, payroll_date, &pool).await;
+
+    let cf_limit_value_query = format!("{};", SELECT_CF_LIMIT_VALUE_QUERY);
+    let result_cf_limit_value: Vec<LimitRateRes> =
+        fetch_all(&cf_limit_value_query, payroll_date, &pool).await;
 
     if result_people.is_empty() || result_dependents.is_empty() || result_receipts.is_empty() {
         eprintln!("Error to fetch data!");
@@ -62,10 +73,9 @@ pub async fn calc(
         return (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response();
     }
 
-    // dbg!(&result_people);
-
     let mut payroll_data: Vec<PayrollData> = vec![];
-    for p in result_people {
+    for i in 0..result_people.len() {
+        let p = &result_people[i];
         // RB - Retribuição Básica
         let mut person_payroll_data: Vec<PayrollData> = vec![];
         let rb = calc_item(
@@ -159,7 +169,7 @@ pub async fn calc(
             value: p.payroll_brl_pss / payload.rate,
             date: *payroll_date,
         };
-        person_payroll_data.push(pss);
+        person_payroll_data.push(pss.clone());
 
         // AP - Abono Permanência
         if p.has_retention_bonus {
@@ -173,28 +183,60 @@ pub async fn calc(
         }
 
         // AT - Abate teto
+        let mut at_base = 0.0;
+        let at_base = &rb.value + &gets.value;
+        let at_rate = result_cf_limit_rate[0].value;
+        let at_limit_value = result_cf_limit_value[0].value;
+        let mut at_value = 0.0;
+        if at_base * at_rate > at_limit_value {
+            at_value = at_base * at_rate - at_limit_value;
+        }
+        let at = PayrollData {
+            payroll_item: Uuid::parse_str(&var("ID_AT").unwrap()).unwrap(),
+            person_id: p.person_id,
+            value: ((at_value / at_rate * 100.0) + 0.5).floor() / 100.0,
+            date: *payroll_date,
+        };
+        person_payroll_data.push(at.clone());
 
         // IR - Imposto de Renda Retido na Fonte
+        let mut gross_value = 0.0;
+        let id_at = Uuid::parse_str(&var("ID_AT").unwrap()).unwrap();
+        let mut consider_for_ir_debits = 0.0;
         for item in &person_payroll_data {
             let (consider_for_ir, transaction_type) = map_item.get(&item.payroll_item).unwrap();
-            let mut gross_value = 0.0;
-            if *consider_for_ir && matches!(transaction_type, TransactionType::Credit) {
-                gross_value += item.value;
-            }
-            let is_at = item.payroll_item == Uuid::parse_str(&var("ID_AT").unwrap()).unwrap();
-            if is_at {
-                gross_value -= item.value;
-            }
-            let mut taxable_value = gross_value * 0.25;
+            let is_at = item.payroll_item == id_at;
             if *consider_for_ir && matches!(transaction_type, TransactionType::Credit) && !is_at {
-                taxable_value -= item.value;
+                gross_value += item.value
+            }
+            if is_at {
+                gross_value -= item.value
+            }
+            if *consider_for_ir && matches!(transaction_type, TransactionType::Debit) && !is_at {
+                consider_for_ir_debits += item.value;
             }
         }
+        let mut usd_taxable_value = gross_value * 0.25 - consider_for_ir_debits;
+
+        let brl_taxable_value = usd_taxable_value * payload.rate;
+
+        let filtered_taxes: Vec<&IncomeTaxesRes> = result_income_taxes
+            .iter()
+            .filter(|tax| tax.from_value <= brl_taxable_value && brl_taxable_value <= tax.to_value)
+            .collect();
+        let range = filtered_taxes[0];
+        let irpf_brl_value = range.tax_rate * brl_taxable_value - range.parcel_deductible_value;
+        let irpf = PayrollData {
+            payroll_item: Uuid::parse_str(&var("ID_IRPF").unwrap()).unwrap(),
+            person_id: p.person_id,
+            value: ((irpf_brl_value / payload.rate * 100.0) + 0.5).floor() / 100.0,
+            date: *payroll_date,
+        };
+        person_payroll_data.push(irpf.clone());
 
         payroll_data.extend(person_payroll_data);
     }
 
-    dbg!(&payroll_data);
     todo!()
 }
 
