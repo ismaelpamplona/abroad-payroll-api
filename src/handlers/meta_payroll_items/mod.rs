@@ -16,7 +16,7 @@ pub use list::list;
 pub use save::save;
 pub use update::update;
 
-#[derive(Debug, sqlx::Type, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, sqlx::Type, Serialize, Deserialize, PartialEq, Clone)]
 #[sqlx(type_name = "transaction_type", rename_all = "snake_case")]
 pub enum TransactionType {
     Credit,

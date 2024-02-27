@@ -30,6 +30,11 @@ pub struct SuccessDelete {
     message: String,
 }
 
+#[derive(Serialize)]
+pub struct SuccessInsert {
+    message: String,
+}
+
 #[derive(Deserialize)]
 pub struct Pagination {
     pub page: Option<usize>,
@@ -86,6 +91,13 @@ impl<T> ApiResponse<T> {
         let response = SuccessDelete {
             id,
             message: format!("Resource has been successfully deleted."),
+        };
+        Json(response)
+    }
+
+    pub fn success_insert() -> Json<SuccessInsert> {
+        let response = SuccessInsert {
+            message: format!("Resource has been successfully inserted."),
         };
         Json(response)
     }

@@ -100,7 +100,7 @@ pub const SELECT_PEOPLE_PAYROLL_QUERY: &str = "
     JOIN cities ci ON ts.city_id = ci.id
     JOIN countries co ON ci.country_id = co.id
     JOIN roles_classes_indexes rci ON p.role_id = rci.role_id AND p.class_id = rci.class_id
-    JOIN fc_rf_by_roles rcirf ON p.role_id = rci.role_id AND p.class_id = rci.class_id
+    JOIN fc_rf_by_roles rcirf ON p.role_id = rcirf.role_id AND p.class_id = rcirf.class_id
     JOIN fc_rf_by_city cirf ON ts.city_id = cirf.city_id
 ";
 
@@ -253,6 +253,34 @@ pub const SELECT_CF_LIMIT_VALUE_QUERY: &str = "
         SELECT MAX(law_date)
         FROM public.cf_limit_value
     )
+";
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct PayrollRes {
+    id: Uuid,
+    payroll_date: NaiveDate,
+    payroll_item: Uuid,
+    code: String,
+    short_name: String,
+    description: String,
+    transaction_type: TransactionType,
+}
+
+pub const SELECT_PAYROLL_SIMULATION_QUERY: &str = "
+    SELECT 
+        ps.id, 
+        ps.date as payroll_date,
+        ps.payroll_item,
+        i.code,
+        i.short_name,
+        i.description,
+        i.transaction_type,
+        ps.person_id,
+        p.name as person_name,
+        ps.value
+    FROM payroll_simulation ps
+    JOIN meta_payroll_items i ON ps.payroll_item = i.id
+    JOIN people p ON ps.person_id = p.id
 ";
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]

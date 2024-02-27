@@ -1,12 +1,12 @@
 use super::*;
-use crate::response::ErrorDetail;
+use crate::response::{get_error_status, handle_error, ErrorDetail, SuccessInsert};
 use calc_af::calc_af;
 use calc_gets::calc_gets;
 use calc_irfe::{calc_irfe, calc_receipts_to_pay};
 use calc_irpf::calc_irpf;
 use calc_manual_entry::calc_manual_entry_to_pay;
 use calc_rb_or_irex::calc_item;
-use sqlx::postgres::PgRow;
+use sqlx::{postgres::PgRow, Error, Postgres, Transaction};
 use std::{collections::HashMap, marker::Send};
 
 pub async fn calc(
@@ -75,8 +75,7 @@ pub async fn calc(
     }
 
     let mut payroll_data: Vec<PayrollData> = vec![];
-    for i in 0..result_people.len() {
-        let p = &result_people[i];
+    for p in result_people {
         // RB - Retribuição Básica
         let mut person_payroll_data: Vec<PayrollData> = vec![];
         let rb = calc_item(
@@ -209,14 +208,23 @@ pub async fn calc(
             p.person_id,
         );
         person_payroll_data.push(irpf.clone());
-        if i == 0 {
-            dbg!(irpf);
-        }
 
-        payroll_data.extend(person_payroll_data);
+        payroll_data.extend(person_payroll_data.iter().cloned());
     }
 
-    todo!()
+    match insert_payroll_data(&pool, payroll_data, *payroll_date).await {
+        Ok(insert_result) => {
+            let res = ApiResponse::<SuccessInsert>::success_insert();
+            (StatusCode::OK, res).into_response()
+        }
+        Err(error) => {
+            eprintln!("Failed to insert items: {}", error);
+            let err = handle_error(&error);
+
+            let res: ApiResponse<String> = ApiResponse::error(err);
+            (get_error_status(&error), Json(res)).into_response()
+        }
+    }
 }
 
 async fn fetch_all<T>(query: &str, payroll_date: &NaiveDate, pool: &PgPool) -> Vec<T>
@@ -231,4 +239,24 @@ where
             eprintln!("Error to fetch data! {:?}", err);
             vec![]
         })
+}
+
+async fn insert_payroll_data(
+    pool: &PgPool,
+    payroll_data: Vec<PayrollData>,
+    date: NaiveDate,
+) -> Result<(), Error> {
+    for data in &payroll_data {
+        sqlx::query(
+            "INSERT INTO public.payroll_simulation (payroll_item, person_id, value, date) VALUES ($1, $2, $3, $4)"
+        )
+        .bind(&data.payroll_item)
+        .bind(&data.person_id)
+        .bind(data.value)
+        .bind(date)
+        .execute(pool)
+        .await?;
+    }
+
+    Ok(())
 }
