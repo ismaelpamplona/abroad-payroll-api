@@ -6,13 +6,14 @@ pub fn calc_gets(
     payroll_date: NaiveDate,
     rb_value: f64,
     person_id: Uuid,
-) -> PayrollData {
+) -> PayrollDataWithReceipt {
     let percent = calc_num_years_tsa(periods, payroll_date) as f64 / 100.0;
-    PayrollData {
+    PayrollDataWithReceipt {
         payroll_item: Uuid::parse_str(&var("ID_GETS").unwrap()).unwrap(),
         person_id,
         value: ((percent * rb_value * 100.0) + 0.5).floor() / 100.0,
         date: payroll_date,
+        receipt_id: None,
     }
 }
 

@@ -18,14 +18,27 @@ pub mod calc_irfe;
 pub mod calc_irpf;
 pub mod calc_manual_entry;
 pub mod calc_rb_or_irex;
+pub mod close;
 pub mod utils;
 
 pub use calc::calc;
+pub use close::close;
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct CalcPayload {
     pub payroll_date: NaiveDate,
     pub rate: f64,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ClosePayload {
+    pub simulation_id: Uuid,
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct ReceiptToPay {
+    pub receipt_id: Uuid,
+    pub value: f64,
 }
 
 #[derive(Deserialize, Serialize, FromRow, Debug)]
@@ -284,9 +297,36 @@ pub const SELECT_PAYROLL_SIMULATION_QUERY: &str = "
 ";
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct SimulationRes {
+    id: Uuid,
+    simulation_id: Uuid,
+    payroll_item: Uuid,
+    person_id: Uuid,
+    value: f64,
+}
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct ClosedRes {
+    id: Uuid,
+    closed_id: Uuid,
+    payroll_item: Uuid,
+    person_id: Uuid,
+    value: f64,
+}
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
 pub struct PayrollData {
     payroll_item: Uuid,
     person_id: Uuid,
     value: f64,
     date: NaiveDate,
+}
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct PayrollDataWithReceipt {
+    payroll_item: Uuid,
+    person_id: Uuid,
+    value: f64,
+    date: NaiveDate,
+    receipt_id: Option<Uuid>,
 }

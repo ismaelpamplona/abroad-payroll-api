@@ -2,12 +2,6 @@ use super::*;
 use std::collections::HashSet;
 use utils::*;
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct ReceiptToPay {
-    pub receipt_id: Uuid,
-    pub value: f64,
-}
-
 pub fn calc_receipts_to_pay(
     receipts: Vec<&ReceiptsRes>,
     paid_receipts: Vec<&PaidReceiptsRes>,
@@ -50,12 +44,18 @@ pub fn calc_receipts_to_pay(
     vec_receipts
 }
 
-pub fn calc_irfe(value: f64, payroll_date: NaiveDate, person_id: Uuid) -> PayrollData {
-    PayrollData {
+pub fn calc_irfe(
+    value: f64,
+    payroll_date: NaiveDate,
+    person_id: Uuid,
+    receipt_id: Uuid,
+) -> PayrollDataWithReceipt {
+    PayrollDataWithReceipt {
         payroll_item: Uuid::parse_str(&var("ID_IRFE").unwrap()).unwrap(),
         person_id,
         value,
         date: payroll_date,
+        receipt_id: Some(receipt_id),
     }
 }
 #[cfg(test)]

@@ -74,10 +74,10 @@ pub async fn calc(
         return (StatusCode::INTERNAL_SERVER_ERROR, Json(error)).into_response();
     }
 
-    let mut payroll_data: Vec<PayrollData> = vec![];
+    let mut payroll_data: Vec<PayrollDataWithReceipt> = vec![];
     for p in result_people {
         // RB - Retribuição Básica
-        let mut person_payroll_data: Vec<PayrollData> = vec![];
+        let mut person_payroll_data: Vec<PayrollDataWithReceipt> = vec![];
         let rb = calc_item(
             p.rci_fc_rb,
             p.city_fc_rb,
@@ -140,14 +140,14 @@ pub async fn calc(
             .filter(|item| item.person_id == p.person_id)
             .collect();
 
-        let receipts_to_pay = calc_receipts_to_pay(
+        let person_receipts_to_pay = calc_receipts_to_pay(
             filtered_recps,
             filtered_paid_recps,
             p.rci_fc_irfe,
             p.city_fc_irfe,
         );
-        for r in receipts_to_pay {
-            let irfe = calc_irfe(r.value, *payroll_date, p.person_id);
+        for r in &person_receipts_to_pay {
+            let irfe = calc_irfe(r.value, *payroll_date, p.person_id, r.receipt_id);
             person_payroll_data.push(irfe);
         }
 
@@ -163,21 +163,23 @@ pub async fn calc(
         }
 
         // PSS
-        let pss = PayrollData {
+        let pss = PayrollDataWithReceipt {
             payroll_item: Uuid::parse_str(&var("ID_PSS").unwrap()).unwrap(),
             person_id: p.person_id,
             value: p.payroll_brl_pss / payload.rate,
             date: *payroll_date,
+            receipt_id: None,
         };
         person_payroll_data.push(pss.clone());
 
         // AP - Abono Permanência
         if p.has_retention_bonus {
-            let ap = PayrollData {
+            let ap = PayrollDataWithReceipt {
                 payroll_item: Uuid::parse_str(&var("ID_AP").unwrap()).unwrap(),
                 person_id: p.person_id,
                 value: p.payroll_brl_pss / payload.rate,
                 date: *payroll_date,
+                receipt_id: None,
             };
             person_payroll_data.push(ap);
         }
@@ -190,11 +192,12 @@ pub async fn calc(
         if at_base * at_rate > at_limit_value {
             at_value = at_base * at_rate - at_limit_value;
         }
-        let at = PayrollData {
+        let at = PayrollDataWithReceipt {
             payroll_item: Uuid::parse_str(&var("ID_AT").unwrap()).unwrap(),
             person_id: p.person_id,
             value: ((at_value / at_rate * 100.0) + 0.5).floor() / 100.0,
             date: *payroll_date,
+            receipt_id: None,
         };
         person_payroll_data.push(at.clone());
 
@@ -243,19 +246,28 @@ where
 
 async fn insert_payroll_data(
     pool: &PgPool,
-    payroll_data: Vec<PayrollData>,
+    payroll_data: Vec<PayrollDataWithReceipt>,
     date: NaiveDate,
 ) -> Result<(), Error> {
+    let simulation_id = Uuid::new_v4();
+    let query_simulation = "INSERT INTO public.payroll_simulation (simulation_id, payroll_item, person_id, value, date) VALUES ($1, $2, $3, $4, $5) RETURNING *";
     for data in &payroll_data {
-        sqlx::query(
-            "INSERT INTO public.payroll_simulation (payroll_item, person_id, value, date) VALUES ($1, $2, $3, $4)"
-        )
-        .bind(&data.payroll_item)
-        .bind(&data.person_id)
-        .bind(data.value)
-        .bind(date)
-        .execute(pool)
-        .await?;
+        let result = sqlx::query_as::<_, SimulationRes>(query_simulation)
+            .bind(&simulation_id)
+            .bind(&data.payroll_item)
+            .bind(&data.person_id)
+            .bind(data.value)
+            .bind(date)
+            .fetch_one(pool)
+            .await?;
+        if let Some(receipt_id) = data.receipt_id {
+            let query_paid = "INSERT INTO public.simulation_paid_rf_receipts (rf_receipt_id, payroll_simulation_item_id) VALUES ($1, $2)";
+            sqlx::query(query_paid)
+                .bind(&receipt_id)
+                .bind(&result.id)
+                .execute(pool)
+                .await?;
+        }
     }
 
     Ok(())

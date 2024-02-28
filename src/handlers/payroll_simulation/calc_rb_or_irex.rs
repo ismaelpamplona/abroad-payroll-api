@@ -10,15 +10,16 @@ pub fn calc_item(
     payroll_date: NaiveDate,
     item_id: Uuid,
     person_id: Uuid,
-) -> PayrollData {
+) -> PayrollDataWithReceipt {
     let month_days = calc_num_days_month(payroll_date) as f64;
     let valid_days = calc_valid_days(start, end, payroll_date) as f64;
     let value = rci_fc * city_fc / month_days * valid_days;
-    PayrollData {
+    PayrollDataWithReceipt {
         payroll_item: item_id,
         person_id,
         value: ((value * 100.0) + 0.5).floor() / 100.0,
         date: payroll_date,
+        receipt_id: None,
     }
 }
 

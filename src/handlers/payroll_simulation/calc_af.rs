@@ -7,7 +7,7 @@ pub fn calc_af(
     payroll_date: NaiveDate,
     irex_value: f64,
     person_id: Uuid,
-) -> PayrollData {
+) -> PayrollDataWithReceipt {
     let mut percent = 0.0;
     for d in dependents {
         let first_day_payroll =
@@ -35,11 +35,12 @@ pub fn calc_af(
             percent += d.value;
         }
     }
-    PayrollData {
+    PayrollDataWithReceipt {
         payroll_item: Uuid::parse_str(&var("ID_AF").unwrap()).unwrap(),
         person_id,
         value: ((percent * irex_value * 100.0) + 0.5).floor() / 100.0,
         date: payroll_date,
+        receipt_id: None,
     }
 }
 

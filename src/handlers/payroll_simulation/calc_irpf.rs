@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use super::*;
 
 pub fn calc_irpf(
-    person_payroll_data: &Vec<PayrollData>,
+    person_payroll_data: &Vec<PayrollDataWithReceipt>,
     map_item: &HashMap<Uuid, (bool, TransactionType)>,
     income_taxes: &Vec<IncomeTaxesRes>,
     payroll_date: NaiveDate,
     rate: f64,
     person_id: Uuid,
-) -> PayrollData {
+) -> PayrollDataWithReceipt {
     let mut gross_value = 0.0;
     let id_at = Uuid::parse_str(&var("ID_AT").unwrap()).unwrap();
     let mut consider_for_ir_debits = 0.0;
@@ -36,11 +36,12 @@ pub fn calc_irpf(
         .collect();
     let range = filtered_taxes[0];
     let irpf_brl_value = range.tax_rate * brl_taxable_value - range.parcel_deductible_value;
-    PayrollData {
+    PayrollDataWithReceipt {
         payroll_item: Uuid::parse_str(&var("ID_IRPF").unwrap()).unwrap(),
         person_id,
         value: ((irpf_brl_value / rate * 100.0) + 0.5).floor() / 100.0,
         date: payroll_date,
+        receipt_id: None,
     }
 }
 
