@@ -55,6 +55,7 @@ fn map_path_to_tables() -> HashMap<&'static str, (&'static str, Router)> {
         ("fc-rf-by-roles", ("fc_rf_by_roles", routes::fc_rf_by_roles::routes())),
         ("manual-entries", ("manual_entries", routes::manual_entries::routes())),
         ("payroll-items", ("meta_payroll_items", routes::meta_payroll_items::routes())),
+        // ("paid-receipts", ("paid_rf_receipts", routes::paid_rf_receipts::routes())),
         ("people", ("people", routes::people::routes())),
         ("rf-payment-receipts", ("rf_payment_receipts", routes::rf_payment_receipts::routes())),
         ("roles-classes-indexes", ("roles_classes_indexes", routes::roles_classes_indexes::routes())),
