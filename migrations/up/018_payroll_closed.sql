@@ -6,6 +6,7 @@
 
 CREATE TABLE public.payroll_closed (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
+    closed_id uuid NOT NULL,
     payroll_item uuid NULL,
     person_id uuid NULL,
     value float8 NOT NULL,

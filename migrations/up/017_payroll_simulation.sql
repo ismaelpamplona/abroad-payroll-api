@@ -6,8 +6,9 @@
 
 CREATE TABLE public.payroll_simulation (
 	id uuid NOT NULL DEFAULT uuid_generate_v4(),
-	payroll_item uuid NULL,
-	person_id uuid NULL,
+	simulation_id uuid NOT NULL,
+	payroll_item uuid NOT NULL,
+	person_id uuid NOT NULL,
 	value float8 NOT NULL,
 	"date" date NOT NULL,
 	created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

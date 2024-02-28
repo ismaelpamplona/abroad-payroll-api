@@ -6,8 +6,8 @@
 
 CREATE TABLE public.manual_entries (
     id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    person_id uuid NULL,
-    payroll_item uuid NULL,
+    person_id uuid NOT NULL,
+    payroll_item uuid NOT NULL,
     value float8 NOT NULL,
     start_date date NOT NULL,
 	end_date date NOT NULL,

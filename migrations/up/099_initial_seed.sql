@@ -154,11 +154,11 @@ WHERE p.id = v.id;
 
 -- 
 
-INSERT INTO public.payroll_simulation (id, payroll_item, person_id, value, date)
+INSERT INTO public.payroll_simulation (id, simulation_id, payroll_item, person_id, value, date)
 VALUES
-    ('3040d3ca-b2fd-4a28-bb68-f618b5a13cd8', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-09-09'),
-    ('f6dc5763-3a9d-4a58-8379-81d97ec0d656', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-10-10'),
-    ('c0c2def0-5a4c-4c92-a432-acba231e0729', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-11-10');
+    ('3040d3ca-b2fd-4a28-bb68-f618b5a13cd8', '9a4339ad-c459-4bbc-a5db-72ff0237d28c', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-09-09'),
+    ('f6dc5763-3a9d-4a58-8379-81d97ec0d656', '9a4339ad-c459-4bbc-a5db-72ff0237d28c', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-10-10'),
+    ('c0c2def0-5a4c-4c92-a432-acba231e0729', '9a4339ad-c459-4bbc-a5db-72ff0237d28c', '0750f2eb-85ec-4bc5-ab7d-bf5bdcc5beff', 'a188e92c-5a6e-4e36-81df-9b0714f4c7d8', 3400.0, '2023-11-10');
 
 --
 
@@ -196,41 +196,6 @@ VALUES
     ('298a1fbe-6d4c-47a5-9ca0-617926e21f9f', 2826.66, 3751.05, 0.150, 370.40, 'MP 1.206/2024', '2024-2-6', '2023-5-1'),
     ('6fc88c3d-7d45-4ba8-927a-686e4fc8e578', 3751.06, 4664.68, 0.225, 651.73, 'MP 1.206/2024', '2024-2-6', '2023-5-1'),
     ('62cd86a4-40d2-44e4-a61c-2c4f92360650', 4664.68, 'infinity'::float8, 0.275, 884.96, 'MP 1.206/2024', '2024-2-6', '2023-5-1');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-CREATE TABLE public.progressive_income_tax_table (
-    id uuid NOT NULL DEFAULT uuid_generate_v4(),
-    from_date date NOT NULL,
-	to_value date NOT NULL,
-    tax_value float8 NOT NULL,
-    parcel_deductible_value float8 NOT NULL,
-    law varchar(200) NOT NULL,
-	law_date date NOT NULL,
-    created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at timestamp NULL,
-	e_tag varchar(100) NOT NULL DEFAULT uuid_generate_v4(),
-	CONSTRAINT progressive_income_tax_table_pkey PRIMARY KEY (id)
-);
-
-
-
-
-
 
 
 
