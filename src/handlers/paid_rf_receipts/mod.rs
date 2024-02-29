@@ -5,17 +5,11 @@ use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
-pub mod delete;
 pub mod get_by_id;
 pub mod list;
-pub mod save;
-pub mod update;
 
-pub use delete::delete;
 pub use get_by_id::get_by_id;
 pub use list::list;
-pub use save::save;
-pub use update::update;
 
 // CREATE TABLE public.paid_rf_receipts (
 //     id uuid NOT NULL DEFAULT uuid_generate_v4(),

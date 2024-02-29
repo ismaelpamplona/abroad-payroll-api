@@ -7,6 +7,6 @@ use axum::{
 
 pub fn routes() -> Router {
     Router::new()
-        .route("/", post(payroll_simulation::calc))
+        .route("/calculate", post(payroll_simulation::calc))
         .route("/close", post(payroll_simulation::close))
 }

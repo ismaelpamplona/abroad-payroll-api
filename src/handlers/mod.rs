@@ -10,7 +10,7 @@ pub mod fc_rf_by_city;
 pub mod fc_rf_by_roles;
 pub mod manual_entries;
 pub mod meta_payroll_items;
-// pub mod paid_rf_receipts;
+pub mod paid_rf_receipts;
 pub mod payroll_simulation;
 pub mod people;
 pub mod rf_payment_receipts;
