@@ -1,5 +1,4 @@
 use super::*;
-use serde::de::DeserializeOwned;
 
 pub async fn save(
     Extension(pool): Extension<PgPool>,
