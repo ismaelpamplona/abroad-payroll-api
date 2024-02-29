@@ -1,3 +1,4 @@
+use crate::response::{get_error_status, handle_error, ErrorDetail, SuccessInsert};
 use crate::{
     handlers::meta_payroll_items::{
         PayrollItemsResponse, TransactionType, SELECT_QUERY as SELECT_PAYROLL_ITEMS_QUERY,
@@ -11,7 +12,6 @@ use sqlx::{FromRow, PgPool};
 use std::env::var;
 use uuid::Uuid;
 
-pub mod calc;
 pub mod calc_af;
 pub mod calc_gets;
 pub mod calc_irfe;
@@ -19,10 +19,11 @@ pub mod calc_irpf;
 pub mod calc_manual_entry;
 pub mod calc_rb_or_irex;
 pub mod close;
+pub mod simulate;
 pub mod utils;
 
-pub use calc::calc;
 pub use close::close;
+pub use simulate::calc;
 
 #[derive(Deserialize, Serialize, FromRow)]
 pub struct CalcPayload {
@@ -30,7 +31,7 @@ pub struct CalcPayload {
     pub rate: f64,
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Deserialize, Serialize, FromRow)]
 pub struct ClosePayload {
     pub simulation_id: Uuid,
 }
@@ -303,6 +304,18 @@ pub struct SimulationRes {
     payroll_item: Uuid,
     person_id: Uuid,
     value: f64,
+    date: NaiveDate,
+}
+
+#[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
+pub struct SimulationResWithReceipt {
+    id: Uuid,
+    simulation_id: Uuid,
+    payroll_item: Uuid,
+    person_id: Uuid,
+    value: f64,
+    date: NaiveDate,
+    rf_receipt_id: Option<Uuid>,
 }
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]
@@ -312,6 +325,7 @@ pub struct ClosedRes {
     payroll_item: Uuid,
     person_id: Uuid,
     value: f64,
+    date: NaiveDate,
 }
 
 #[derive(Deserialize, Serialize, FromRow, Debug, Clone)]

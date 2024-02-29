@@ -1,12 +1,11 @@
 use super::*;
-use crate::response::{get_error_status, handle_error, ErrorDetail, SuccessInsert};
 use calc_af::calc_af;
 use calc_gets::calc_gets;
 use calc_irfe::{calc_irfe, calc_receipts_to_pay};
 use calc_irpf::calc_irpf;
 use calc_manual_entry::calc_manual_entry_to_pay;
 use calc_rb_or_irex::calc_item;
-use sqlx::{postgres::PgRow, Error, Postgres, Transaction};
+use sqlx::{postgres::PgRow, Error};
 use std::{collections::HashMap, marker::Send};
 
 pub async fn calc(
