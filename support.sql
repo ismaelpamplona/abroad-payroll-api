@@ -75,3 +75,6 @@ WHERE
         AND ts.end_date <= DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month - 1 day'))-- last day        
     AND rf.its_paid = FALSE;
 
+
+
+
