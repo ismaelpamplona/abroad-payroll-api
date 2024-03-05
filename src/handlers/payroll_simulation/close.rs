@@ -30,28 +30,50 @@ pub async fn close(
 
     dbg!(&result_simulation);
 
-    match insert_payroll_data(&pool, result_simulation).await {
-        Ok(_) => {
-            let res = ApiResponse::<SuccessInsert>::success_insert();
-            (StatusCode::OK, res).into_response()
-        }
-        Err(error) => {
-            eprintln!("Failed to insert items: {}", error);
-            let err = handle_error(&error);
-
-            let res: ApiResponse<String> = ApiResponse::error(err);
-            (get_error_status(&error), Json(res)).into_response()
-        }
-    }
+    insert_payroll_data(&pool, result_simulation).await
 }
 
 async fn insert_payroll_data(
     pool: &PgPool,
     simulation_data: Vec<SimulationResWithReceipt>,
-) -> Result<(), Error> {
+) -> impl IntoResponse {
     if simulation_data.is_empty() {
-        return Err(Error::RowNotFound);
+        let no_data = ErrorDetail {
+            code: StatusCode::NOT_FOUND.as_u16(),
+            message: format!("No simulation data"),
+        };
+        let res: ApiResponse<String> = ApiResponse::error(no_data);
+        return (StatusCode::NOT_FOUND, Json(res)).into_response();
     }
+    let date = simulation_data[0].date;
+
+    let query_check_month = format!(
+        "
+        SELECT EXISTS (
+            SELECT 1
+            FROM payroll_closed
+            WHERE EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM {})
+            AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM {})
+        ) AS month_exists;
+    ",
+        date, date
+    );
+    let result_already_exist = sqlx::query_as::<_, (bool,)>(&query_check_month)
+        .bind(date)
+        .fetch_one(pool)
+        .await;
+
+    let month_exists = result_already_exist.unwrap().0;
+    if month_exists {
+        println!("Date already exists in the database.");
+        let already_exists = ErrorDetail {
+            code: StatusCode::NOT_FOUND.as_u16(),
+            message: format!("Month already exists"),
+        };
+        let res: ApiResponse<String> = ApiResponse::error(already_exists);
+        return (StatusCode::FOUND, Json(res)).into_response();
+    }
+
     let closed_id = Uuid::new_v4();
     let query_closed = "INSERT INTO public.payroll_closed (closed_id, payroll_item, person_id, value, date) VALUES ($1, $2, $3, $4, $5) RETURNING *";
     for data in simulation_data {
@@ -62,16 +84,17 @@ async fn insert_payroll_data(
             .bind(&data.value)
             .bind(&data.date)
             .fetch_one(pool)
-            .await?;
+            .await;
+        let closed = result_closed.unwrap();
         if let Some(receipt_id) = data.rf_receipt_id {
             let query_paid = "INSERT INTO public.paid_rf_receipts (rf_receipt_id, payroll_closed_item_id) VALUES ($1, $2)";
-            sqlx::query(query_paid)
+            let _ = sqlx::query(query_paid)
                 .bind(&receipt_id)
-                .bind(&result_closed.id)
+                .bind(&closed.id)
                 .execute(pool)
-                .await?;
+                .await;
         }
     }
-
-    Ok(())
+    let res = ApiResponse::<SuccessInsert>::success_insert();
+    (StatusCode::OK, res).into_response()
 }
