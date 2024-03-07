@@ -24,7 +24,6 @@ pub async fn check_etag(
     next: Next,
 ) -> impl IntoResponse {
     let table: Option<String> = request.extensions().get::<String>().cloned();
-    println!("{:?}", table);
     if let Some(if_match) = headers.get("If-Match") {
         if let Ok(if_match_str) = if_match.to_str() {
             let query = format!("SELECT * FROM {} WHERE id = $1", table.unwrap());
