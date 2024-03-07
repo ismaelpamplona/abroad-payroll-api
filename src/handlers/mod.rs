@@ -13,6 +13,7 @@ pub mod meta_payroll_items;
 pub mod paid_rf_receipts;
 pub mod payroll_simulation;
 pub mod people;
+pub mod progressive_income_tax_table;
 pub mod rf_payment_receipts;
 pub mod roles;
 pub mod roles_classes_indexes;
