@@ -28,8 +28,6 @@ pub async fn close(
             vec![]
         });
 
-    dbg!(&result_simulation);
-
     insert_payroll_data(&pool, result_simulation).await
 }
 
@@ -65,7 +63,6 @@ async fn insert_payroll_data(
 
     let month_exists = result_already_exist.unwrap().0;
     if month_exists {
-        println!("Date already exists in the database.");
         let already_exists = ErrorDetail {
             code: StatusCode::NOT_FOUND.as_u16(),
             message: format!("Month already exists"),
