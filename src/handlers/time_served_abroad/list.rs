@@ -58,7 +58,7 @@ pub async fn list(
             (StatusCode::OK, Json(response)).into_response()
         }
         Err(error) => {
-            eprintln!("Failed to fetch [roles_classes_indexes]: {}", error);
+            eprintln!("Failed to fetch time_served_abroad: {}", error);
             let err = handle_error(&error);
 
             let res: ApiResponse<String> = ApiResponse::error(err);
