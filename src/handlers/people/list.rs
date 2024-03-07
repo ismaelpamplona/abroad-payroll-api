@@ -52,7 +52,6 @@ pub async fn list(
         },
     ];
     let where_clause = generate_filter_clauses(filters);
-    println!("{:?}", where_clause);
 
     let count_query = format!(
         "SELECT COUNT(*) 
