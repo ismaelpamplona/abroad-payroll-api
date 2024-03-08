@@ -5,7 +5,11 @@ pub async fn get_by_id(
     Extension(pool): Extension<PgPool>,
     Path(id): Path<Uuid>,
 ) -> impl IntoResponse {
-    let query = format!("{} {} WHERE p.id = $1", SELECT_QUERY, JOINS_QUERY);
+    let query = format!(
+        "{} {} WHERE p.id = $1 {}",
+        SELECT_QUERY, JOINS_QUERY, GROUP_BY_QUERY
+    );
+    dbg!(&query);
 
     let result = sqlx::query_as::<_, PersonResponse>(&query)
         .bind(&id)

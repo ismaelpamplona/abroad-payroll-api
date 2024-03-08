@@ -1,7 +1,7 @@
 use crate::response::{get_error_status, handle_error, ApiResponse, Meta};
 use axum::{extract::Extension, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
-use sqlx::{FromRow, PgPool};
+use sqlx::{types::Json as SqlxJson, FromRow, PgPool};
 use uuid::Uuid;
 
 pub mod delete;
@@ -16,7 +16,13 @@ pub use list::list;
 pub use save::save;
 pub use update::update;
 
-#[derive(Deserialize, Serialize, FromRow)]
+#[derive(Deserialize, Serialize, Debug)]
+pub struct OpenField {
+    pub name: String,
+    pub value: String,
+}
+
+#[derive(Deserialize, Serialize, Debug, FromRow)]
 pub struct PersonResponse {
     pub id: Uuid,
     pub name: String,
@@ -30,6 +36,7 @@ pub struct PersonResponse {
     pub bank_number: String,
     pub bank_agency: String,
     pub bank_agency_account: String,
+    pub open_fields: Option<Vec<SqlxJson<OpenField>>>,
     pub e_tag: String,
 }
 
@@ -71,13 +78,23 @@ pub const SELECT_QUERY: &str = "
         p.bank_agency_account,
         p.created_at,
         p.updated_at,
+        CASE
+        WHEN COUNT(pof.*) > 0 THEN
+            ARRAY_AGG(JSONB_BUILD_OBJECT('name', pof.name, 'value', pof.value))
+        ELSE
+            NULL
+        END AS open_fields,
         p.e_tag
     FROM people p";
 
 pub const JOINS_QUERY: &str = "
+    LEFT JOIN people_open_fields pof ON p.id = pof.person_id
     JOIN roles r ON p.role_id = r.id
     JOIN classes c ON p.class_id = c.id
     JOIN banks b ON p.bank_id = b.id";
+
+pub const GROUP_BY_QUERY: &str = "
+    GROUP BY p.id, p.name, p.role_id, r.name, p.class_id, c.name, p.cpf, p.bank_id, b.name, b.number, p.bank_agency, p.bank_agency_account, p.created_at, p.updated_at, p.e_tag";
 
 pub const RETURN_QUERY: &str = "
     RETURNING people.id, people.name, people.role_id, 
