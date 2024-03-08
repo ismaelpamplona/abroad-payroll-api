@@ -1,4 +1,4 @@
-# Register process
+# Register
 
 ## Meta payroll items
 
@@ -168,12 +168,19 @@ Register people.
 - Vacation periods:
   - Start_date (e.g. 2024-01-01): `<input type="date">`,
   - End_date (e.g. 2024-01-31): `<input type="date">`,
-  - Accrual_start_date (e.g. 2024-01-01): `<input type="date">`,
+  - Accrual_start_date (e.g. 2024-01-01): `<inpsut type="date">`,
   - Accrual_end_date (e.g. 2024-12-31): `<input type="date">`,
   - Requested_salary_advance (e.g. True): `true / false`
   - Requested_christmas_bonus_advance (e.g. True): `true / false`
+
+## Simulation
+
+Calculate simulation
+
+### Fields:
+
 - Manual entries:
   - Payroll_item: `<select />`
-  - value: `<input type="number">`
-  - start_date: `<input type="date">`
-  - end_date: `<input type="date">`
+  - Value: `<input type="number">`
+  - Start date: `<input type="date">`
+  - End date: `<input type="date">`
